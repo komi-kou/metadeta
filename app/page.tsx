@@ -1,94 +1,75 @@
-import Link from 'next/link';
+'use client';
 
-const demos = [
-  {
-    id: 'ad-report',
-    title: '広告レポート',
-    description: 'Meta/Facebook Ads の詳細パフォーマンスレポート。AI分析、アクションプラン付き。',
-    gradient: 'from-red-500 to-pink-500',
-    icon: '📊',
-  },
-  {
-    id: 'tasks',
-    title: 'タスク管理',
-    description: 'カンバン風のタスク管理UI。ドラッグ&ドロップでタスクを移動できます。',
-    gradient: 'from-purple-500 to-pink-500',
-    icon: '✓',
-  },
-  {
-    id: 'pomodoro',
-    title: 'ポモドーロタイマー',
-    description: 'ミニマルデザインの集中タイマー。25分作業、5分休憩のサイクル。',
-    gradient: 'from-blue-500 to-cyan-500',
-    icon: '⏱',
-  },
-  {
-    id: 'dashboard',
-    title: 'ダッシュボード',
-    description: 'カード型ウィジェットを使った美しいダッシュボードUI。',
-    gradient: 'from-green-500 to-teal-500',
-    icon: '📊',
-  },
-  {
-    id: 'notes',
-    title: 'ノートアプリ',
-    description: 'マークダウン対応のシンプルなノートエディター。',
-    gradient: 'from-orange-500 to-red-500',
-    icon: '📝',
-  },
-  {
-    id: 'analytics',
-    title: '統計表示',
-    description: 'チャートとグラフを使ったアナリティクスUI。',
-    gradient: 'from-indigo-500 to-purple-500',
-    icon: '📈',
-  },
-];
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16 animate-fadeIn">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 flex items-center justify-center p-8">
+      <div className="max-w-4xl w-full">
+        <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-white mb-4">
-            UI Design Showcase
+            📊 広告パフォーマンスレポートツール
           </h1>
-          <p className="text-xl text-gray-300">
-            5種類のモダンなUIデザインをご覧ください
+          <p className="text-xl text-gray-300 mb-2">
+            Meta/Facebook Ads × Claude AI × Chatwork
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {demos.map((demo) => (
-            <div key={demo.id} className="animate-fadeIn">
-              <Link href={`/${demo.id}`}>
-                <div className="group relative overflow-hidden rounded-2xl bg-gray-800 p-8 hover:scale-105 transition-transform duration-300 cursor-pointer h-full">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${demo.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-
-                  <div className="relative z-10">
-                    <div className="text-6xl mb-4">{demo.icon}</div>
-                    <h2 className="text-2xl font-bold text-white mb-3">
-                      {demo.title}
-                    </h2>
-                    <p className="text-gray-400 leading-relaxed">
-                      {demo.description}
-                    </p>
-
-                    <div className={`mt-6 inline-flex items-center text-transparent bg-clip-text bg-gradient-to-r ${demo.gradient} font-semibold group-hover:gap-2 transition-all`}>
-                      デモを見る
-                      <span className="ml-2 group-hover:ml-3 transition-all">→</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center mt-16 animate-fadeIn">
           <p className="text-gray-400">
-            全てクライアントサイドで動作 • Vercel/Render対応 • Next.js 14 + TypeScript + Tailwind CSS
+            自動分析・自動送信で広告運用を効率化
           </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <button
+            onClick={() => router.push('/ad-report')}
+            className="group bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-md rounded-xl p-8 border border-white/10 hover:border-white/30 transition-all"
+          >
+            <div className="text-5xl mb-4">📊</div>
+            <h2 className="text-2xl font-bold text-white mb-3">レポート表示</h2>
+            <p className="text-gray-300 leading-relaxed mb-4">
+              広告パフォーマンスを詳細に分析。
+              キャンペーン別、クリエイティブ別のインサイトを確認。
+            </p>
+            <div className="text-blue-400 font-semibold group-hover:gap-2 transition-all inline-flex items-center">
+              レポートを見る
+              <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => router.push('/settings')}
+            className="group bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-md rounded-xl p-8 border border-white/10 hover:border-white/30 transition-all"
+          >
+            <div className="text-5xl mb-4">⚙️</div>
+            <h2 className="text-2xl font-bold text-white mb-3">API設定</h2>
+            <p className="text-gray-300 leading-relaxed mb-4">
+              GoMarble、Claude、Chatworkの
+              API連携設定と自動送信の設定。
+            </p>
+            <div className="text-purple-400 font-semibold group-hover:gap-2 transition-all inline-flex items-center">
+              設定する
+              <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+            </div>
+          </button>
+        </div>
+
+        <div className="mt-12 bg-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
+          <h3 className="text-lg font-bold text-white mb-4">🎯 主な機能</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="text-gray-300">
+              <div className="font-semibold text-white mb-1">📈 詳細分析</div>
+              広告費、ROAS、CPA、CTRなど全指標を自動取得・分析
+            </div>
+            <div className="text-gray-300">
+              <div className="font-semibold text-white mb-1">🤖 AI分析</div>
+              Claude AIが具体的なアクションプランを提案
+            </div>
+            <div className="text-gray-300">
+              <div className="font-semibold text-white mb-1">💬 自動送信</div>
+              Chatworkに定期的にレポートを自動配信
+            </div>
+          </div>
         </div>
       </div>
     </div>
