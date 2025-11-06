@@ -54,13 +54,13 @@ export default function SettingsPage() {
   // GoMarble接続テスト & 広告アカウント取得
   const testGoMarbleConnection = async () => {
     if (!config.gomarbleApiKey) {
-      alert('GoMarble APIキーを入力してください');
+      alert('Meta User Access Tokenを入力してください');
       return;
     }
 
     setTestingConnection(true);
     try {
-      // 実際のGoMarble API呼び出し
+      // 実際のMeta Ads API呼び出し
       const response = await fetch('/api/gomarble/list-accounts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -71,14 +71,15 @@ export default function SettingsPage() {
         const accounts = await response.json();
         setAdAccounts(accounts);
         setConnectionStatus(prev => ({ ...prev, gomarble: true }));
-        alert(`接続成功！${accounts.length}件の広告アカウントが見つかりました`);
+        alert(`✅ 接続成功！${accounts.length}件の広告アカウントが見つかりました`);
       } else {
+        const errorData = await response.json().catch(() => ({}));
         setConnectionStatus(prev => ({ ...prev, gomarble: false }));
-        alert('GoMarble接続に失敗しました');
+        alert(`❌ Meta Ads API接続に失敗しました。\n\nエラー: ${errorData.error || '不明なエラー'}\n\nトークンが無効または期限切れの可能性があります。Graph API Explorerで新しいトークンを取得してください。`);
       }
     } catch (error) {
       setConnectionStatus(prev => ({ ...prev, gomarble: false }));
-      alert('エラーが発生しました');
+      alert(`❌ エラーが発生しました: ${error}`);
     } finally {
       setTestingConnection(false);
     }
@@ -100,15 +101,17 @@ export default function SettingsPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         setConnectionStatus(prev => ({ ...prev, claude: true }));
-        alert('Claude API接続成功！');
+        alert(`✅ Claude API接続成功！\n\nモデル: ${data.model}`);
       } else {
+        const errorData = await response.json().catch(() => ({}));
         setConnectionStatus(prev => ({ ...prev, claude: false }));
-        alert('Claude API接続に失敗しました');
+        alert(`❌ Claude API接続に失敗しました。\n\nエラー: ${errorData.error || '不明なエラー'}\n\nAPIキーが無効な可能性があります。https://console.anthropic.com/ で正しいAPIキーを確認してください。`);
       }
     } catch (error) {
       setConnectionStatus(prev => ({ ...prev, claude: false }));
-      alert('エラーが発生しました');
+      alert(`❌ エラーが発生しました: ${error}`);
     } finally {
       setTestingConnection(false);
     }
@@ -133,15 +136,17 @@ export default function SettingsPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         setConnectionStatus(prev => ({ ...prev, chatwork: true }));
-        alert('Chatwork接続成功！');
+        alert(`✅ Chatwork接続成功！\n\nルーム: ${data.roomName}`);
       } else {
+        const errorData = await response.json().catch(() => ({}));
         setConnectionStatus(prev => ({ ...prev, chatwork: false }));
-        alert('Chatwork接続に失敗しました');
+        alert(`❌ Chatwork API接続に失敗しました。\n\nエラー: ${errorData.error || '不明なエラー'}\n\nAPIトークンまたはルームIDが無効な可能性があります。Chatwork設定画面で正しい情報を確認してください。`);
       }
     } catch (error) {
       setConnectionStatus(prev => ({ ...prev, chatwork: false }));
-      alert('エラーが発生しました');
+      alert(`❌ エラーが発生しました: ${error}`);
     } finally {
       setTestingConnection(false);
     }
@@ -162,10 +167,10 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-6">
-          {/* GoMarble設定 */}
+          {/* Meta Ads設定 */}
           <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-white">GoMarble API</h2>
+              <h2 className="text-2xl font-bold text-white">Meta/Facebook Ads API</h2>
               {connectionStatus.gomarble !== null && (
                 <div className={`px-3 py-1 rounded text-sm font-semibold ${
                   connectionStatus.gomarble ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
@@ -175,16 +180,16 @@ export default function SettingsPage() {
               )}
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Meta/Facebook Ads データ取得用。https://apps.gomarble.ai でAPIキーを取得
+              Meta/Facebook Ads データ取得用。<a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Graph API Explorer</a>でUser Access Tokenを取得してください。必要な権限: ads_read
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-white text-sm mb-2">APIキー</label>
+                <label className="block text-white text-sm mb-2">Meta User Access Token</label>
                 <input
                   type="password"
                   value={config.gomarbleApiKey}
                   onChange={(e) => setConfig({...config, gomarbleApiKey: e.target.value})}
-                  placeholder="158eb46d-26a1-79f2-eedb-431d115c3314"
+                  placeholder="EAAxxxxxxxxxxxxxxxx..."
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>

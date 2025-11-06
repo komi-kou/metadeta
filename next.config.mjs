@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // API Routesを使用するため、output: 'export'を削除
   images: {
     unoptimized: true,
   },

@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         messages: [
           {
             role: 'user',
-            content: 'Hello',
+            content: 'Test',
           },
         ],
       }),
