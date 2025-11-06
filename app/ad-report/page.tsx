@@ -30,6 +30,31 @@ interface InsightsData {
   date_stop: string;
 }
 
+interface ComparisonData {
+  value: number;
+  percentage: number;
+}
+
+interface InsightsComparison {
+  current: InsightsData;
+  previous: InsightsData | null;
+  comparison: {
+    spend: ComparisonData;
+    impressions: ComparisonData;
+    clicks: ComparisonData;
+    conversions: ComparisonData;
+    ctr: ComparisonData;
+    cpm: ComparisonData;
+    cpc: ComparisonData;
+    frequency: ComparisonData;
+    reach: ComparisonData;
+    revenue: ComparisonData;
+    cpa: ComparisonData;
+    roas: ComparisonData;
+    cvr: ComparisonData;
+  } | null;
+}
+
 interface CampaignData {
   id: string;
   name: string;
@@ -52,6 +77,7 @@ export default function AdReportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [insightsData, setInsightsData] = useState<InsightsData | null>(null);
+  const [comparisonData, setComparisonData] = useState<InsightsComparison | null>(null);
   const [campaignsData, setCampaignsData] = useState<CampaignData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [datePreset, setDatePreset] = useState('last_7d');
@@ -77,8 +103,8 @@ export default function AdReportPage() {
     setError(null);
 
     try {
-      // インサイトデータを取得
-      const insightsResponse = await fetch('/api/meta/insights', {
+      // 比較データを取得（現在期間 vs 前期間）
+      const insightsResponse = await fetch('/api/meta/insights-comparison', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -91,7 +117,8 @@ export default function AdReportPage() {
       if (insightsResponse.ok) {
         const insightsResult = await insightsResponse.json();
         if (insightsResult.success) {
-          setInsightsData(insightsResult.data);
+          setComparisonData(insightsResult);
+          setInsightsData(insightsResult.current);
         } else {
           setError(insightsResult.error || 'データ取得に失敗しました');
         }
@@ -167,6 +194,24 @@ export default function AdReportPage() {
       fetchData();
     }
   }, [config, datePreset]);
+
+  // 比較インジケーターを表示するヘルパー関数
+  const renderComparison = (comparison: ComparisonData | undefined) => {
+    if (!comparison || !comparisonData?.previous) return null;
+
+    const isPositive = comparison.percentage > 0;
+    const isNegative = comparison.percentage < 0;
+
+    if (comparison.percentage === 0) return null;
+
+    return (
+      <div className={`text-sm font-semibold ml-2 ${
+        isPositive ? 'text-green-400' : 'text-red-400'
+      }`}>
+        {isPositive ? '↑' : '↓'} {Math.abs(comparison.percentage).toFixed(1)}%
+      </div>
+    );
+  };
 
   // API設定がない場合
   if (!isLoading && (!config || !config.gomarbleApiKey || !config.selectedAdAccount)) {
@@ -295,28 +340,56 @@ export default function AdReportPage() {
           <>
             {/* 期間表示 */}
             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 mb-6">
-              <p className="text-gray-300 text-sm">
-                データ期間: {insightsData.date_start} 〜 {insightsData.date_stop}
-              </p>
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-gray-400 text-xs mb-1">現在期間</p>
+                  <p className="text-white text-sm font-semibold">
+                    {insightsData.date_start} 〜 {insightsData.date_stop}
+                  </p>
+                </div>
+                {comparisonData?.previous && (
+                  <>
+                    <div className="text-gray-500">vs</div>
+                    <div>
+                      <p className="text-gray-400 text-xs mb-1">前期間</p>
+                      <p className="text-gray-400 text-sm">
+                        {comparisonData.previous.date_start} 〜 {comparisonData.previous.date_stop}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* メインメトリクス */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-md rounded-xl p-6 border border-blue-500/20">
                 <div className="text-blue-300 text-sm mb-2">広告費</div>
-                <div className="text-white text-3xl font-bold">¥{insightsData.spend.toLocaleString()}</div>
+                <div className="flex items-center">
+                  <div className="text-white text-3xl font-bold">¥{insightsData.spend.toLocaleString()}</div>
+                  {renderComparison(comparisonData?.comparison?.spend)}
+                </div>
               </div>
               <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 backdrop-blur-md rounded-xl p-6 border border-green-500/20">
                 <div className="text-green-300 text-sm mb-2">コンバージョン</div>
-                <div className="text-white text-3xl font-bold">{insightsData.conversions.toLocaleString()}</div>
+                <div className="flex items-center">
+                  <div className="text-white text-3xl font-bold">{insightsData.conversions.toLocaleString()}</div>
+                  {renderComparison(comparisonData?.comparison?.conversions)}
+                </div>
               </div>
               <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-md rounded-xl p-6 border border-purple-500/20">
                 <div className="text-purple-300 text-sm mb-2">ROAS</div>
-                <div className="text-white text-3xl font-bold">{insightsData.roas.toFixed(2)}</div>
+                <div className="flex items-center">
+                  <div className="text-white text-3xl font-bold">{insightsData.roas.toFixed(2)}</div>
+                  {renderComparison(comparisonData?.comparison?.roas)}
+                </div>
               </div>
               <div className="bg-gradient-to-br from-orange-500/20 to-orange-600/10 backdrop-blur-md rounded-xl p-6 border border-orange-500/20">
                 <div className="text-orange-300 text-sm mb-2">CPA</div>
-                <div className="text-white text-3xl font-bold">¥{insightsData.cpa.toLocaleString()}</div>
+                <div className="flex items-center">
+                  <div className="text-white text-3xl font-bold">¥{insightsData.cpa.toLocaleString()}</div>
+                  {renderComparison(comparisonData?.comparison?.cpa)}
+                </div>
               </div>
             </div>
 
@@ -326,35 +399,59 @@ export default function AdReportPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <div className="text-gray-400 text-sm">インプレッション</div>
-                  <div className="text-white text-xl font-semibold">{insightsData.impressions.toLocaleString()}</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">{insightsData.impressions.toLocaleString()}</div>
+                    {renderComparison(comparisonData?.comparison?.impressions)}
+                  </div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">クリック数</div>
-                  <div className="text-white text-xl font-semibold">{insightsData.clicks.toLocaleString()}</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">{insightsData.clicks.toLocaleString()}</div>
+                    {renderComparison(comparisonData?.comparison?.clicks)}
+                  </div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">CTR</div>
-                  <div className="text-white text-xl font-semibold">{insightsData.ctr.toFixed(2)}%</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">{insightsData.ctr.toFixed(2)}%</div>
+                    {renderComparison(comparisonData?.comparison?.ctr)}
+                  </div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">CPC</div>
-                  <div className="text-white text-xl font-semibold">¥{insightsData.cpc.toFixed(0)}</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">¥{insightsData.cpc.toFixed(0)}</div>
+                    {renderComparison(comparisonData?.comparison?.cpc)}
+                  </div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">CPM</div>
-                  <div className="text-white text-xl font-semibold">¥{insightsData.cpm.toFixed(0)}</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">¥{insightsData.cpm.toFixed(0)}</div>
+                    {renderComparison(comparisonData?.comparison?.cpm)}
+                  </div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">リーチ</div>
-                  <div className="text-white text-xl font-semibold">{insightsData.reach.toLocaleString()}</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">{insightsData.reach.toLocaleString()}</div>
+                    {renderComparison(comparisonData?.comparison?.reach)}
+                  </div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">フリークエンシー</div>
-                  <div className="text-white text-xl font-semibold">{insightsData.frequency.toFixed(2)}</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">{insightsData.frequency.toFixed(2)}</div>
+                    {renderComparison(comparisonData?.comparison?.frequency)}
+                  </div>
                 </div>
                 <div>
                   <div className="text-gray-400 text-sm">CVR</div>
-                  <div className="text-white text-xl font-semibold">{insightsData.cvr.toFixed(2)}%</div>
+                  <div className="flex items-center">
+                    <div className="text-white text-xl font-semibold">{insightsData.cvr.toFixed(2)}%</div>
+                    {renderComparison(comparisonData?.comparison?.cvr)}
+                  </div>
                 </div>
               </div>
             </div>
