@@ -2,6 +2,13 @@ import Link from 'next/link';
 
 const demos = [
   {
+    id: 'ad-report',
+    title: '広告レポート',
+    description: 'Meta/Facebook Ads の詳細パフォーマンスレポート。AI分析、アクションプラン付き。',
+    gradient: 'from-red-500 to-pink-500',
+    icon: '📊',
+  },
+  {
     id: 'tasks',
     title: 'タスク管理',
     description: 'カンバン風のタスク管理UI。ドラッグ&ドロップでタスクを移動できます。',
