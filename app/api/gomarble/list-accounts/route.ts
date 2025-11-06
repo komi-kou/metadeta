@@ -11,37 +11,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Facebook Graph APIを呼び出して広告アカウント一覧を取得
-    // Meta Access Tokenを使用してme/adaccountsエンドポイントにアクセス
-    const response = await fetch(
-      `https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_status,currency,balance&access_token=${apiKey}`,
-      {
+    // Facebook Graph APIを呼び出して広告アカウント一覧を取得（ページネーション対応）
+    // limit=500で一度に多くのアカウントを取得
+    let allAccounts: any[] = [];
+    let nextUrl: string | null = `https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_status,currency,balance&limit=500&access_token=${apiKey}`;
+
+    // すべてのページを取得
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
         method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Facebook API Error:', errorData);
+
+        return NextResponse.json(
+          {
+            error: 'Meta Ads API接続に失敗しました。トークンが無効または期限切れの可能性があります。',
+            details: errorData
+          },
+          { status: response.status }
+        );
       }
-    );
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Facebook API Error:', errorData);
+      const data = await response.json();
 
-      return NextResponse.json(
-        {
-          error: 'Meta Ads API接続に失敗しました。トークンが無効または期限切れの可能性があります。',
-          details: errorData
-        },
-        { status: response.status }
-      );
+      // 現在のページのアカウントを追加
+      if (data.data && data.data.length > 0) {
+        allAccounts = allAccounts.concat(data.data);
+      }
+
+      // 次のページのURLを取得
+      nextUrl = data.paging?.next || null;
     }
 
-    const data = await response.json();
-
     // データを正規化してフロントエンドに返す
-    const accounts = data.data?.map((account: any) => ({
+    const accounts = allAccounts.map((account: any) => ({
       id: account.id,
       name: account.name || `Account ${account.id}`,
       status: account.account_status,
       currency: account.currency,
-    })) || [];
+    }));
 
     return NextResponse.json(accounts);
   } catch (error) {
