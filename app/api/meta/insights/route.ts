@@ -61,43 +61,62 @@ export async function POST(request: NextRequest) {
     if (data.data && data.data.length > 0) {
       const insights = data.data[0];
 
-      // actionsからコンバージョンを抽出（複数のコンバージョンタイプを確認）
+      // 標準イベントの優先順位リスト
+      const standardEvents = [
+        'purchase',
+        'omni_purchase',
+        'offsite_conversion.fb_pixel_purchase',
+        'lead',
+        'omni_complete_registration',
+        'complete_registration',
+        'offsite_conversion.fb_pixel_lead',
+        'offsite_conversion.fb_pixel_complete_registration',
+        'initiate_checkout',
+        'add_to_cart',
+        'view_content',
+        'search',
+        'add_to_wishlist',
+        'contact'
+      ];
+
+      // すべての標準イベントを取得
+      const allConversions: any = {};
+      const allCosts: any = {};
+      const allValues: any = {};
+
+      if (insights.actions) {
+        insights.actions.forEach((action: any) => {
+          allConversions[action.action_type] = parseFloat(action.value);
+        });
+      }
+
+      if (insights.cost_per_action_type) {
+        insights.cost_per_action_type.forEach((cost: any) => {
+          allCosts[cost.action_type] = parseFloat(cost.value);
+        });
+      }
+
+      if (insights.action_values) {
+        insights.action_values.forEach((value: any) => {
+          allValues[value.action_type] = parseFloat(value.value);
+        });
+      }
+
+      // 主要なコンバージョンイベントを優先順位順に検索
       let conversions = 0;
       let revenue = 0;
       let cpa = 0;
       let purchaseRoas = 0;
+      let primaryEventType = '';
 
-      // コンバージョン数を取得（複数のアクションタイプをチェック）
-      if (insights.actions) {
-        const purchaseAction = insights.actions.find(
-          (action: any) =>
-            action.action_type === 'purchase' ||
-            action.action_type === 'offsite_conversion.fb_pixel_purchase' ||
-            action.action_type === 'omni_purchase'
-        );
-        conversions = purchaseAction ? parseFloat(purchaseAction.value) : 0;
-      }
-
-      // 売上を取得
-      if (insights.action_values) {
-        const purchaseValue = insights.action_values.find(
-          (value: any) =>
-            value.action_type === 'purchase' ||
-            value.action_type === 'offsite_conversion.fb_pixel_purchase' ||
-            value.action_type === 'omni_purchase'
-        );
-        revenue = purchaseValue ? parseFloat(purchaseValue.value) : 0;
-      }
-
-      // CPAを取得
-      if (insights.cost_per_action_type) {
-        const costPerPurchase = insights.cost_per_action_type.find(
-          (cost: any) =>
-            cost.action_type === 'purchase' ||
-            cost.action_type === 'offsite_conversion.fb_pixel_purchase' ||
-            cost.action_type === 'omni_purchase'
-        );
-        cpa = costPerPurchase ? parseFloat(costPerPurchase.value) : 0;
+      for (const eventType of standardEvents) {
+        if (allConversions[eventType] && allConversions[eventType] > 0) {
+          conversions = allConversions[eventType];
+          cpa = allCosts[eventType] || 0;
+          revenue = allValues[eventType] || 0;
+          primaryEventType = eventType;
+          break;
+        }
       }
 
       // ROASを取得（APIから直接取得できる場合）
@@ -136,6 +155,11 @@ export async function POST(request: NextRequest) {
         cvr: conversions > 0 && insights.clicks ? (conversions / parseInt(insights.clicks)) * 100 : 0,
         date_start: insights.date_start,
         date_stop: insights.date_stop,
+        primaryEventType: primaryEventType,
+        // すべての標準イベントのコンバージョンデータ
+        allConversions: allConversions,
+        allCosts: allCosts,
+        allValues: allValues,
         // デバッグ用の生データも含める
         raw_actions: insights.actions || [],
         raw_action_values: insights.action_values || [],

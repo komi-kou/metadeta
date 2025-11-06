@@ -79,6 +79,9 @@ export default function AdReportPage() {
   const [insightsData, setInsightsData] = useState<InsightsData | null>(null);
   const [comparisonData, setComparisonData] = useState<InsightsComparison | null>(null);
   const [campaignsData, setCampaignsData] = useState<CampaignData[]>([]);
+  const [adsetsData, setAdsetsData] = useState<any[]>([]);
+  const [adsData, setAdsData] = useState<any[]>([]);
+  const [dailyTrendsData, setDailyTrendsData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [datePreset, setDatePreset] = useState('last_7d');
   const [claudeAnalysis, setClaudeAnalysis] = useState<string | null>(null);
@@ -144,6 +147,60 @@ export default function AdReportPage() {
           setCampaignsData(campaignsResult.data);
         }
       }
+
+      // 広告セットデータを取得
+      const adsetsResponse = await fetch('/api/meta/adsets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.gomarbleApiKey,
+          accountId: config.selectedAdAccount,
+          datePreset
+        }),
+      });
+
+      if (adsetsResponse.ok) {
+        const adsetsResult = await adsetsResponse.json();
+        if (adsetsResult.success) {
+          setAdsetsData(adsetsResult.data);
+        }
+      }
+
+      // 広告データを取得
+      const adsResponse = await fetch('/api/meta/ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.gomarbleApiKey,
+          accountId: config.selectedAdAccount,
+          datePreset
+        }),
+      });
+
+      if (adsResponse.ok) {
+        const adsResult = await adsResponse.json();
+        if (adsResult.success) {
+          setAdsData(adsResult.data);
+        }
+      }
+
+      // 日別トレンドデータを取得（過去7日間）
+      const dailyTrendsResponse = await fetch('/api/meta/daily-trends', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.gomarbleApiKey,
+          accountId: config.selectedAdAccount,
+          days: 7
+        }),
+      });
+
+      if (dailyTrendsResponse.ok) {
+        const dailyTrendsResult = await dailyTrendsResponse.json();
+        if (dailyTrendsResult.success) {
+          setDailyTrendsData(dailyTrendsResult.data);
+        }
+      }
     } catch (err) {
       setError(`エラーが発生しました: ${err}`);
     } finally {
@@ -166,7 +223,10 @@ export default function AdReportPage() {
         body: JSON.stringify({
           apiKey: config.claudeApiKey,
           insights: insightsData,
-          campaigns: campaignsData
+          campaigns: campaignsData,
+          adsets: adsetsData,
+          ads: adsData,
+          dailyTrends: dailyTrendsData
         }),
       });
 
