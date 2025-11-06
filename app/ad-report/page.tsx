@@ -83,6 +83,10 @@ export default function AdReportPage() {
   const [adsetsData, setAdsetsData] = useState<any[]>([]);
   const [adsData, setAdsData] = useState<any[]>([]);
   const [dailyTrendsData, setDailyTrendsData] = useState<any[]>([]);
+  const [demographicsData, setDemographicsData] = useState<any>(null);
+  const [geographyData, setGeographyData] = useState<any>(null);
+  const [placementsData, setPlacementsData] = useState<any>(null);
+  const [devicesData, setDevicesData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [datePreset, setDatePreset] = useState('last_7d');
   const [claudeAnalysis, setClaudeAnalysis] = useState<string | null>(null);
@@ -202,6 +206,78 @@ export default function AdReportPage() {
           setDailyTrendsData(dailyTrendsResult.data);
         }
       }
+
+      // デモグラフィックデータを取得（年齢・性別）
+      const demographicsResponse = await fetch('/api/meta/demographics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.gomarbleApiKey,
+          accountId: config.selectedAdAccount,
+          datePreset
+        }),
+      });
+
+      if (demographicsResponse.ok) {
+        const demographicsResult = await demographicsResponse.json();
+        if (demographicsResult.success) {
+          setDemographicsData(demographicsResult.data);
+        }
+      }
+
+      // 地域データを取得（国・地域）
+      const geographyResponse = await fetch('/api/meta/geography', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.gomarbleApiKey,
+          accountId: config.selectedAdAccount,
+          datePreset
+        }),
+      });
+
+      if (geographyResponse.ok) {
+        const geographyResult = await geographyResponse.json();
+        if (geographyResult.success) {
+          setGeographyData(geographyResult.data);
+        }
+      }
+
+      // プレースメントデータを取得（配信面）
+      const placementsResponse = await fetch('/api/meta/placements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.gomarbleApiKey,
+          accountId: config.selectedAdAccount,
+          datePreset
+        }),
+      });
+
+      if (placementsResponse.ok) {
+        const placementsResult = await placementsResponse.json();
+        if (placementsResult.success) {
+          setPlacementsData(placementsResult.data);
+        }
+      }
+
+      // デバイスデータを取得
+      const devicesResponse = await fetch('/api/meta/devices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.gomarbleApiKey,
+          accountId: config.selectedAdAccount,
+          datePreset
+        }),
+      });
+
+      if (devicesResponse.ok) {
+        const devicesResult = await devicesResponse.json();
+        if (devicesResult.success) {
+          setDevicesData(devicesResult.data);
+        }
+      }
     } catch (err) {
       setError(`エラーが発生しました: ${err}`);
     } finally {
@@ -224,10 +300,15 @@ export default function AdReportPage() {
         body: JSON.stringify({
           apiKey: config.claudeApiKey,
           insights: insightsData,
+          comparison: comparisonData,
           campaigns: campaignsData,
           adsets: adsetsData,
           ads: adsData,
-          dailyTrends: dailyTrendsData
+          dailyTrends: dailyTrendsData,
+          demographics: demographicsData,
+          geography: geographyData,
+          placements: placementsData,
+          devices: devicesData
         }),
       });
 
@@ -530,8 +611,15 @@ export default function AdReportPage() {
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">広告費</th>
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">IMP</th>
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">クリック</th>
+                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CTR</th>
+                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CPC</th>
+                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CPM</th>
+                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">リーチ</th>
+                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">Freq</th>
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CV</th>
+                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CVR</th>
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CPA</th>
+                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">ROAS</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -548,8 +636,15 @@ export default function AdReportPage() {
                           <td className="text-white py-3 text-right">¥{campaign.spend.toLocaleString()}</td>
                           <td className="text-gray-300 py-3 text-right">{campaign.impressions.toLocaleString()}</td>
                           <td className="text-gray-300 py-3 text-right">{campaign.clicks.toLocaleString()}</td>
+                          <td className="text-gray-300 py-3 text-right">{campaign.ctr.toFixed(2)}%</td>
+                          <td className="text-gray-300 py-3 text-right">¥{campaign.cpc.toFixed(0)}</td>
+                          <td className="text-gray-300 py-3 text-right">¥{campaign.cpm.toFixed(0)}</td>
+                          <td className="text-gray-300 py-3 text-right">{campaign.reach.toLocaleString()}</td>
+                          <td className="text-gray-300 py-3 text-right">{campaign.frequency.toFixed(2)}</td>
                           <td className="text-gray-300 py-3 text-right">{campaign.conversions.toFixed(0)}</td>
+                          <td className="text-gray-300 py-3 text-right">{campaign.cvr.toFixed(2)}%</td>
                           <td className="text-gray-300 py-3 text-right">¥{campaign.cpa.toLocaleString()}</td>
+                          <td className="text-gray-300 py-3 text-right">{campaign.roas.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>

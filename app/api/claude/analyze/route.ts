@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiKey, insights, campaigns, adsets, ads, dailyTrends } = await request.json();
+    const { apiKey, insights, comparison, campaigns, adsets, ads, dailyTrends, demographics, geography, placements, devices } = await request.json();
 
     if (!apiKey) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ ${insights.primaryEventType ? `\n主要コンバージョンイベント: ${insi
 
 # 入力データ
 
-## アカウント全体データ
+## アカウント全体データ（現在期間）
 - 広告費: ¥${insights.spend.toLocaleString()}
 - インプレッション: ${insights.impressions.toLocaleString()}
 - クリック数: ${insights.clicks.toLocaleString()}
@@ -45,6 +45,18 @@ ${insights.primaryEventType ? `\n主要コンバージョンイベント: ${insi
 - CPA: ¥${insights.cpa.toLocaleString()}
 - ROAS: ${insights.roas.toFixed(2)}
 - CVR: ${insights.cvr.toFixed(2)}%
+
+${comparison && comparison.previous ? `
+## 前期比較データ
+前期間: ${comparison.previous.date_start} 〜 ${comparison.previous.date_stop}
+
+- 広告費: ¥${comparison.previous.spend.toLocaleString()} → ¥${insights.spend.toLocaleString()} (${comparison.comparison.spend.percentage > 0 ? '+' : ''}${comparison.comparison.spend.percentage.toFixed(1)}%)
+- コンバージョン: ${comparison.previous.conversions.toFixed(0)} → ${insights.conversions.toFixed(0)} (${comparison.comparison.conversions.percentage > 0 ? '+' : ''}${comparison.comparison.conversions.percentage.toFixed(1)}%)
+- CPA: ¥${comparison.previous.cpa.toLocaleString()} → ¥${insights.cpa.toLocaleString()} (${comparison.comparison.cpa.percentage > 0 ? '+' : ''}${comparison.comparison.cpa.percentage.toFixed(1)}%)
+- ROAS: ${comparison.previous.roas.toFixed(2)} → ${insights.roas.toFixed(2)} (${comparison.comparison.roas.percentage > 0 ? '+' : ''}${comparison.comparison.roas.percentage.toFixed(1)}%)
+- CTR: ${comparison.previous.ctr.toFixed(2)}% → ${insights.ctr.toFixed(2)}% (${comparison.comparison.ctr.percentage > 0 ? '+' : ''}${comparison.comparison.ctr.percentage.toFixed(1)}%)
+- CVR: ${comparison.previous.cvr.toFixed(2)}% → ${insights.cvr.toFixed(2)}% (${comparison.comparison.cvr.percentage > 0 ? '+' : ''}${comparison.comparison.cvr.percentage.toFixed(1)}%)
+` : ''}
 
 ${campaigns && campaigns.length > 0 ? `
 ## キャンペーンデータ（トップ10）
@@ -77,6 +89,41 @@ ${dailyTrends && dailyTrends.length > 0 ? `
 ## 日別トレンドデータ（過去7日間）
 ${dailyTrends.map((d: any) => `
 ${d.date}: 広告費 ¥${d.spend.toLocaleString()} | CV ${d.conversions.toFixed(0)} | CPA ¥${d.cpa.toLocaleString()} | ROAS ${d.roas.toFixed(2)}
+`).join('')}
+` : ''}
+
+${demographics && demographics.byAge && demographics.byAge.length > 0 ? `
+## 年齢別パフォーマンス（トップ5）
+${demographics.byAge.slice(0, 5).map((d: any, i: number) => `
+${i + 1}. 年齢: ${d.age} | 広告費: ¥${d.spend.toLocaleString()} | CV: ${d.conversions.toFixed(0)} | CPA: ¥${d.cpa.toLocaleString()} | CTR: ${d.ctr.toFixed(2)}%
+`).join('')}
+` : ''}
+
+${demographics && demographics.byGender && demographics.byGender.length > 0 ? `
+## 性別パフォーマンス
+${demographics.byGender.map((d: any) => `
+性別: ${d.gender} | 広告費: ¥${d.spend.toLocaleString()} | CV: ${d.conversions.toFixed(0)} | CPA: ¥${d.cpa.toLocaleString()} | CTR: ${d.ctr.toFixed(2)}%
+`).join('')}
+` : ''}
+
+${geography && geography.byCountry && geography.byCountry.length > 0 ? `
+## 国別パフォーマンス（トップ5）
+${geography.byCountry.slice(0, 5).map((g: any, i: number) => `
+${i + 1}. 国: ${g.country} | 広告費: ¥${g.spend.toLocaleString()} | CV: ${g.conversions.toFixed(0)} | CPA: ¥${g.cpa.toLocaleString()}
+`).join('')}
+` : ''}
+
+${placements && placements.byPublisher && placements.byPublisher.length > 0 ? `
+## プレースメント別パフォーマンス
+${placements.byPublisher.map((p: any) => `
+配信面: ${p.publisher_platform} | 広告費: ¥${p.spend.toLocaleString()} | CV: ${p.conversions.toFixed(0)} | CPA: ¥${p.cpa.toLocaleString()} | Freq: ${p.frequency.toFixed(2)}
+`).join('')}
+` : ''}
+
+${devices && devices.length > 0 ? `
+## デバイス別パフォーマンス
+${devices.map((d: any) => `
+デバイス: ${d.device_platform} | 広告費: ¥${d.spend.toLocaleString()} | CV: ${d.conversions.toFixed(0)} | CPA: ¥${d.cpa.toLocaleString()} | CTR: ${d.ctr.toFixed(2)}%
 `).join('')}
 ` : ''}
 

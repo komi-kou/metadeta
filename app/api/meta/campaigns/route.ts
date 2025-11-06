@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const campaignsWithInsights = await Promise.all(
       campaignsData.data.map(async (campaign: any) => {
         const insightsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/insights?` +
-          `fields=spend,impressions,clicks,ctr,cpm,cpc,reach,frequency,actions,cost_per_action_type&` +
+          `fields=spend,impressions,clicks,ctr,cpm,cpc,reach,frequency,actions,action_values,cost_per_action_type,purchase_roas,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions&` +
           `date_preset=${datePreset || 'last_7d'}&` +
           `access_token=${apiKey}`;
 
@@ -43,14 +43,70 @@ export async function POST(request: NextRequest) {
             if (insightsData.data && insightsData.data.length > 0) {
               const insights = insightsData.data[0];
 
-              // コンバージョンとCPAを抽出
-              const conversions = insights.actions?.find(
-                (action: any) => action.action_type === 'offsite_conversion.fb_pixel_purchase'
-              )?.value || '0';
+              // 標準イベントの優先順位リスト
+              const standardEvents = [
+                'purchase', 'omni_purchase', 'offsite_conversion.fb_pixel_purchase',
+                'lead', 'omni_complete_registration', 'complete_registration',
+                'offsite_conversion.fb_pixel_lead', 'offsite_conversion.fb_pixel_complete_registration',
+                'initiate_checkout', 'add_to_cart', 'view_content'
+              ];
 
-              const cpa = insights.cost_per_action_type?.find(
-                (cost: any) => cost.action_type === 'offsite_conversion.fb_pixel_purchase'
-              )?.value || '0';
+              // すべての標準イベントを取得
+              const allConversions: any = {};
+              const allCosts: any = {};
+              const allValues: any = {};
+
+              if (insights.actions) {
+                insights.actions.forEach((action: any) => {
+                  allConversions[action.action_type] = parseFloat(action.value);
+                });
+              }
+
+              if (insights.cost_per_action_type) {
+                insights.cost_per_action_type.forEach((cost: any) => {
+                  allCosts[cost.action_type] = parseFloat(cost.value);
+                });
+              }
+
+              if (insights.action_values) {
+                insights.action_values.forEach((value: any) => {
+                  allValues[value.action_type] = parseFloat(value.value);
+                });
+              }
+
+              // 主要なコンバージョンイベントを優先順位順に検索
+              let conversions = 0;
+              let cpa = 0;
+              let revenue = 0;
+
+              for (const eventType of standardEvents) {
+                if (allConversions[eventType] && allConversions[eventType] > 0) {
+                  conversions = allConversions[eventType];
+                  cpa = allCosts[eventType] || 0;
+                  revenue = allValues[eventType] || 0;
+                  break;
+                }
+              }
+
+              // CPAが取得できない場合は計算
+              if (!cpa && conversions > 0) {
+                cpa = parseFloat(insights.spend || '0') / conversions;
+              }
+
+              // ROASを計算
+              let roas = 0;
+              if (insights.purchase_roas) {
+                const roasData = insights.purchase_roas.find(
+                  (r: any) => r.action_type === 'purchase' || r.action_type === 'omni_purchase'
+                );
+                roas = roasData ? parseFloat(roasData.value) : 0;
+              }
+              if (!roas && revenue > 0) {
+                roas = revenue / parseFloat(insights.spend || '1');
+              }
+
+              // CVRを計算
+              const cvr = conversions > 0 && insights.clicks ? (conversions / parseInt(insights.clicks)) * 100 : 0;
 
               return {
                 id: campaign.id,
@@ -60,13 +116,16 @@ export async function POST(request: NextRequest) {
                 spend: parseFloat(insights.spend || '0'),
                 impressions: parseInt(insights.impressions || '0'),
                 clicks: parseInt(insights.clicks || '0'),
-                conversions: parseFloat(conversions),
+                conversions: conversions,
                 ctr: parseFloat(insights.ctr || '0'),
                 cpm: parseFloat(insights.cpm || '0'),
                 cpc: parseFloat(insights.cpc || '0'),
                 reach: parseInt(insights.reach || '0'),
                 frequency: parseFloat(insights.frequency || '0'),
-                cpa: parseFloat(cpa)
+                cpa: cpa,
+                revenue: revenue,
+                roas: roas,
+                cvr: cvr
               };
             }
           }
@@ -88,7 +147,10 @@ export async function POST(request: NextRequest) {
           cpc: 0,
           reach: 0,
           frequency: 0,
-          cpa: 0
+          cpa: 0,
+          revenue: 0,
+          roas: 0,
+          cvr: 0
         };
       })
     );
