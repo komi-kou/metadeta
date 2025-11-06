@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+
 
 export default function AnalyticsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
@@ -59,13 +59,11 @@ export default function AnalyticsPage() {
       <div className="max-w-7xl mx-auto">
         {/* ヘッダー */}
         <div className="flex justify-between items-center mb-8">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <h1
             className="text-4xl font-bold text-white"
           >
             📈 アナリティクス
-          </motion.h1>
+          </h1>
           <div className="flex gap-4 items-center">
             <div className="flex gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-1">
               {periods.map((period) => (
@@ -94,11 +92,8 @@ export default function AnalyticsPage() {
         {/* 統計カード */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <motion.div
+            <div
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10"
             >
               <div className="flex justify-between items-start mb-3">
@@ -114,26 +109,20 @@ export default function AnalyticsPage() {
                 </div>
               </div>
               <div className="text-3xl font-bold text-white">{stat.value}</div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* 訪問者数グラフ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+          <div
             className="lg:col-span-2 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-8 border border-white/10"
           >
             <h2 className="text-2xl font-bold text-white mb-6">週間訪問者数</h2>
             <div className="h-64 flex items-end justify-between gap-4">
               {chartData.map((data, index) => (
-                <motion.div
+                <div
                   key={data.day}
-                  initial={{ height: 0 }}
-                  animate={{ height: `${(data.value / maxValue) * 100}%` }}
-                  transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
                   className="flex-1 flex flex-col items-center"
                 >
                   <div className="w-full bg-gradient-to-t from-blue-500 to-cyan-500 rounded-t-lg relative group">
@@ -142,26 +131,20 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                   <div className="text-white/60 text-sm mt-2">{data.day}</div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* デバイス分布 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+          <div
             className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-8 border border-white/10"
           >
             <h2 className="text-2xl font-bold text-white mb-6">デバイス別</h2>
             <div className="space-y-6">
               {devices.map((device, index) => (
-                <motion.div
+                <div
                   key={device.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + index * 0.1 }}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-white">
@@ -171,35 +154,26 @@ export default function AnalyticsPage() {
                     <span className="text-white font-bold">{device.percentage}%</span>
                   </div>
                   <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${device.percentage}%` }}
-                      transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
+                    <div
                       className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"
                     />
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
           {/* トップページ */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+          <div
             className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-8 border border-white/10"
           >
             <h2 className="text-2xl font-bold text-white mb-6">トップページ</h2>
             <div className="space-y-3">
               {topPages.map((page, index) => (
-                <motion.div
+                <div
                   key={page.path}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + index * 0.05 }}
                   className="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
                 >
                   <div className="flex-1">
@@ -217,43 +191,34 @@ export default function AnalyticsPage() {
                   >
                     {page.change}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* トラフィックソース */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+          <div
             className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-8 border border-white/10"
           >
             <h2 className="text-2xl font-bold text-white mb-6">トラフィックソース</h2>
             <div className="space-y-6">
               {trafficSources.map((source, index) => (
-                <motion.div
+                <div
                   key={source.source}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.9 + index * 0.1 }}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-white font-semibold">{source.source}</span>
                     <span className="text-white font-bold">{source.percentage}%</span>
                   </div>
                   <div className="w-full bg-white/10 rounded-full h-4 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${source.percentage}%` }}
-                      transition={{ delay: 1.0 + index * 0.1, duration: 0.5 }}
+                    <div
                       className={`h-full bg-gradient-to-r ${source.color} rounded-full`}
                     />
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

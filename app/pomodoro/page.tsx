@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+
 
 export default function PomodoroPage() {
   const [minutes, setMinutes] = useState(25);
@@ -74,8 +74,6 @@ export default function PomodoroPage() {
       <div className="max-w-2xl w-full">
         <div className="flex justify-between items-center mb-12">
           <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
             className="text-4xl font-bold text-white"
           >
             ⏱️ ポモドーロタイマー
@@ -88,9 +86,7 @@ export default function PomodoroPage() {
           </Link>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+        <div
           className="bg-white/10 backdrop-blur-xl rounded-3xl p-12 shadow-2xl"
         >
           {/* モード切替 */}
@@ -130,7 +126,7 @@ export default function PomodoroPage() {
                 fill="none"
               />
               {/* 進捗円 */}
-              <motion.circle
+              <circle
                 cx="150"
                 cy="150"
                 r="140"
@@ -139,10 +135,6 @@ export default function PomodoroPage() {
                 fill="none"
                 strokeLinecap="round"
                 strokeDasharray={2 * Math.PI * 140}
-                strokeDashoffset={2 * Math.PI * 140 * (1 - progress / 100)}
-                initial={{ strokeDashoffset: 2 * Math.PI * 140 }}
-                animate={{ strokeDashoffset: 2 * Math.PI * 140 * (1 - progress / 100) }}
-                transition={{ duration: 0.5 }}
               />
             </svg>
 
@@ -160,9 +152,7 @@ export default function PomodoroPage() {
 
           {/* コントロールボタン */}
           <div className="flex justify-center gap-4 mb-8">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={toggleTimer}
               className={`px-12 py-4 rounded-xl font-bold text-lg text-white transition-all shadow-lg ${
                 isActive
@@ -171,15 +161,13 @@ export default function PomodoroPage() {
               }`}
             >
               {isActive ? '一時停止' : 'スタート'}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            </button>
+            <button
               onClick={resetTimer}
               className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-all"
             >
               リセット
-            </motion.button>
+            </button>
           </div>
 
           {/* 統計 */}
@@ -199,7 +187,7 @@ export default function PomodoroPage() {
               <div className="text-sm text-white/60">進捗</div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

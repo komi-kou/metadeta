@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 type Task = {
   id: string;
@@ -105,13 +104,9 @@ export default function TasksPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-bold text-white"
-          >
+          <h1 className="text-4xl font-bold text-white animate-fadeIn">
             📋 タスク管理ボード
-          </motion.h1>
+          </h1>
           <Link
             href="/"
             className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm"
@@ -121,11 +116,7 @@ export default function TasksPage() {
         </div>
 
         {/* タスク追加フォーム */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8"
-        >
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8 animate-fadeIn">
           <div className="flex gap-4">
             <input
               type="text"
@@ -151,17 +142,14 @@ export default function TasksPage() {
               追加
             </button>
           </div>
-        </motion.div>
+        </div>
 
         {/* カンバンボード */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {columns.map((column, colIndex) => (
-            <motion.div
+          {columns.map((column) => (
+            <div
               key={column.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: colIndex * 0.1 }}
-              className="bg-white/5 backdrop-blur-md rounded-xl p-6"
+              className="bg-white/5 backdrop-blur-md rounded-xl p-6 animate-fadeIn"
             >
               <div
                 className={`bg-gradient-to-r ${columnColors[column.id]} rounded-lg p-4 mb-4`}
@@ -175,13 +163,10 @@ export default function TasksPage() {
               </div>
 
               <div className="space-y-3 min-h-[400px]">
-                {column.tasks.map((task, taskIndex) => (
-                  <motion.div
+                {column.tasks.map((task) => (
+                  <div
                     key={task.id}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: taskIndex * 0.05 }}
-                    className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer group"
+                    className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer group animate-fadeIn"
                   >
                     <h3 className="font-semibold text-white mb-2">{task.title}</h3>
                     <p className="text-sm text-gray-300 mb-3">{task.description}</p>
@@ -205,10 +190,10 @@ export default function TasksPage() {
                         削除
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

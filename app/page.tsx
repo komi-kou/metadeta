@@ -1,7 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 const demos = [
   {
@@ -45,28 +42,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="container mx-auto px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16 animate-fadeIn">
           <h1 className="text-6xl font-bold text-white mb-4">
             UI Design Showcase
           </h1>
           <p className="text-xl text-gray-300">
             5種類のモダンなUIデザインをご覧ください
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {demos.map((demo, index) => (
-            <motion.div
-              key={demo.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
+          {demos.map((demo) => (
+            <div key={demo.id} className="animate-fadeIn">
               <Link href={`/${demo.id}`}>
                 <div className="group relative overflow-hidden rounded-2xl bg-gray-800 p-8 hover:scale-105 transition-transform duration-300 cursor-pointer h-full">
                   <div className={`absolute inset-0 bg-gradient-to-br ${demo.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
@@ -87,20 +74,15 @@ export default function Home() {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          className="text-center mt-16"
-        >
+        <div className="text-center mt-16 animate-fadeIn">
           <p className="text-gray-400">
             全てクライアントサイドで動作 • Vercel/Render対応 • Next.js 14 + TypeScript + Tailwind CSS
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

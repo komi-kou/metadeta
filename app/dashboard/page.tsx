@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+
 
 export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -41,9 +41,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto">
         {/* ヘッダー */}
         <div className="flex justify-between items-center mb-8">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
           >
             <h1 className="text-4xl font-bold text-white mb-2">📊 ダッシュボード</h1>
             <p className="text-gray-400">
@@ -54,7 +52,7 @@ export default function DashboardPage() {
                 weekday: 'long',
               })}
             </p>
-          </motion.div>
+          </div>
           <Link
             href="/"
             className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm"
@@ -66,11 +64,8 @@ export default function DashboardPage() {
         {/* メトリクスカード */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {metrics.map((metric, index) => (
-            <motion.div
+            <div
               key={metric.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all"
             >
               <div className="text-gray-400 text-sm mb-2">{metric.label}</div>
@@ -82,16 +77,13 @@ export default function DashboardPage() {
               >
                 {metric.trend === 'up' ? '↑' : '↓'} {metric.change}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* 時計ウィジェット */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+          <div
             className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md rounded-xl p-8 border border-white/10"
           >
             <h2 className="text-xl font-bold text-white mb-6">🕐 現在時刻</h2>
@@ -107,13 +99,10 @@ export default function DashboardPage() {
                 {currentTime.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* クイックアクションウィジェット */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+          <div
             className="bg-gradient-to-br from-green-500/20 to-teal-500/20 backdrop-blur-md rounded-xl p-8 border border-white/10"
           >
             <h2 className="text-xl font-bold text-white mb-6">⚡ クイックアクション</h2>
@@ -128,13 +117,10 @@ export default function DashboardPage() {
                 👥 チーム招待
               </button>
             </div>
-          </motion.div>
+          </div>
 
           {/* タスクリストウィジェット */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+          <div
             className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-md rounded-xl p-8 border border-white/10"
           >
             <h2 className="text-xl font-bold text-white mb-6">✅ 今日のタスク</h2>
@@ -162,24 +148,18 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* 最近のアクティビティ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+        <div
           className="mt-8 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-8 border border-white/10"
         >
           <h2 className="text-2xl font-bold text-white mb-6">🔔 最近のアクティビティ</h2>
           <div className="space-y-4">
             {recentActivities.map((activity, index) => (
-              <motion.div
+              <div
                 key={activity.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 + index * 0.1 }}
                 className="flex items-center gap-4 p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
               >
                 <div className={`w-12 h-12 rounded-full bg-${activity.color}-500/20 flex items-center justify-center text-2xl`}>
@@ -190,10 +170,10 @@ export default function DashboardPage() {
                   <div className="text-gray-400 text-sm">{activity.action}</div>
                 </div>
                 <div className="text-gray-500 text-sm">{activity.time}</div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

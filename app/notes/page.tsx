@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+
 
 type Note = {
   id: string;
@@ -146,9 +146,8 @@ export default function NotesPage() {
         {/* ノート一覧 */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {filteredNotes.map((note) => (
-            <motion.div
+            <div
               key={note.id}
-              whileHover={{ scale: 1.02 }}
               onClick={() => handleSelectNote(note)}
               className={`p-4 rounded-lg cursor-pointer transition-all ${
                 selectedNote?.id === note.id
@@ -163,7 +162,7 @@ export default function NotesPage() {
               <p className="text-white/40 text-xs mt-2">
                 {note.updatedAt.toLocaleDateString('ja-JP')}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -238,9 +237,7 @@ export default function NotesPage() {
                   placeholder="ここに内容を書いてください..."
                 />
               ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                <div
                   className="prose prose-invert max-w-none"
                 >
                   <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
@@ -248,7 +245,7 @@ export default function NotesPage() {
                       {selectedNote.content}
                     </pre>
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
           </>
