@@ -25,12 +25,16 @@ export async function POST(request: NextRequest) {
       'reach',
       'actions',
       'action_values',
-      'cost_per_action_type'
+      'cost_per_action_type',
+      'purchase_roas',
+      'date_start',
+      'date_stop'
     ].join(',');
 
     const url = `https://graph.facebook.com/v21.0/${accountId}/insights?` +
       `fields=${fields}&` +
       `date_preset=${datePreset || 'last_7d'}&` +
+      `level=account&` +
       `access_token=${apiKey}`;
 
     const response = await fetch(url, {
@@ -57,37 +61,85 @@ export async function POST(request: NextRequest) {
     if (data.data && data.data.length > 0) {
       const insights = data.data[0];
 
-      // actionsからコンバージョンを抽出
-      const conversions = insights.actions?.find(
-        (action: any) => action.action_type === 'offsite_conversion.fb_pixel_purchase'
-      )?.value || '0';
+      // actionsからコンバージョンを抽出（複数のコンバージョンタイプを確認）
+      let conversions = 0;
+      let revenue = 0;
+      let cpa = 0;
+      let purchaseRoas = 0;
 
-      // action_valuesから売上を抽出
-      const revenue = insights.action_values?.find(
-        (value: any) => value.action_type === 'offsite_conversion.fb_pixel_purchase'
-      )?.value || '0';
+      // コンバージョン数を取得（複数のアクションタイプをチェック）
+      if (insights.actions) {
+        const purchaseAction = insights.actions.find(
+          (action: any) =>
+            action.action_type === 'purchase' ||
+            action.action_type === 'offsite_conversion.fb_pixel_purchase' ||
+            action.action_type === 'omni_purchase'
+        );
+        conversions = purchaseAction ? parseFloat(purchaseAction.value) : 0;
+      }
 
-      // cost_per_action_typeからCPAを抽出
-      const cpa = insights.cost_per_action_type?.find(
-        (cost: any) => cost.action_type === 'offsite_conversion.fb_pixel_purchase'
-      )?.value || '0';
+      // 売上を取得
+      if (insights.action_values) {
+        const purchaseValue = insights.action_values.find(
+          (value: any) =>
+            value.action_type === 'purchase' ||
+            value.action_type === 'offsite_conversion.fb_pixel_purchase' ||
+            value.action_type === 'omni_purchase'
+        );
+        revenue = purchaseValue ? parseFloat(purchaseValue.value) : 0;
+      }
+
+      // CPAを取得
+      if (insights.cost_per_action_type) {
+        const costPerPurchase = insights.cost_per_action_type.find(
+          (cost: any) =>
+            cost.action_type === 'purchase' ||
+            cost.action_type === 'offsite_conversion.fb_pixel_purchase' ||
+            cost.action_type === 'omni_purchase'
+        );
+        cpa = costPerPurchase ? parseFloat(costPerPurchase.value) : 0;
+      }
+
+      // ROASを取得（APIから直接取得できる場合）
+      if (insights.purchase_roas) {
+        const roasData = insights.purchase_roas.find(
+          (roas: any) =>
+            roas.action_type === 'purchase' ||
+            roas.action_type === 'omni_purchase'
+        );
+        purchaseRoas = roasData ? parseFloat(roasData.value) : 0;
+      }
+
+      // ROASが取得できない場合は計算
+      if (!purchaseRoas && revenue > 0) {
+        purchaseRoas = revenue / parseFloat(insights.spend || '1');
+      }
+
+      // CPAが取得できない場合は計算
+      if (!cpa && conversions > 0) {
+        cpa = parseFloat(insights.spend || '0') / conversions;
+      }
 
       const formattedData = {
         spend: parseFloat(insights.spend || '0'),
         impressions: parseInt(insights.impressions || '0'),
         clicks: parseInt(insights.clicks || '0'),
-        conversions: parseFloat(conversions),
+        conversions: conversions,
         ctr: parseFloat(insights.ctr || '0'),
         cpm: parseFloat(insights.cpm || '0'),
         cpc: parseFloat(insights.cpc || '0'),
         frequency: parseFloat(insights.frequency || '0'),
         reach: parseInt(insights.reach || '0'),
-        revenue: parseFloat(revenue),
-        cpa: parseFloat(cpa),
-        roas: parseFloat(revenue) / parseFloat(insights.spend || '1'),
-        cvr: (parseFloat(conversions) / parseInt(insights.clicks || '1')) * 100,
+        revenue: revenue,
+        cpa: cpa,
+        roas: purchaseRoas,
+        cvr: conversions > 0 && insights.clicks ? (conversions / parseInt(insights.clicks)) * 100 : 0,
         date_start: insights.date_start,
-        date_stop: insights.date_stop
+        date_stop: insights.date_stop,
+        // デバッグ用の生データも含める
+        raw_actions: insights.actions || [],
+        raw_action_values: insights.action_values || [],
+        raw_cost_per_action: insights.cost_per_action_type || []
       };
 
       return NextResponse.json({

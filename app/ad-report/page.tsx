@@ -55,6 +55,8 @@ export default function AdReportPage() {
   const [campaignsData, setCampaignsData] = useState<CampaignData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [datePreset, setDatePreset] = useState('last_7d');
+  const [claudeAnalysis, setClaudeAnalysis] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // 設定を読み込む
   useEffect(() => {
@@ -119,6 +121,43 @@ export default function AdReportPage() {
       setError(`エラーが発生しました: ${err}`);
     } finally {
       setIsFetchingData(false);
+    }
+  };
+
+  // Claude分析を実行
+  const analyzeWithClaude = async () => {
+    if (!config || !config.claudeApiKey || !insightsData) {
+      alert('Claude APIキーとデータが必要です');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch('/api/claude/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: config.claudeApiKey,
+          insights: insightsData,
+          campaigns: campaignsData
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setClaudeAnalysis(result.analysis);
+        } else {
+          alert('Claude分析に失敗しました');
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Claude分析エラー: ${errorData.error}`);
+      }
+    } catch (err) {
+      alert(`エラーが発生しました: ${err}`);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -210,6 +249,15 @@ export default function AdReportPage() {
             >
               {isFetchingData ? '取得中...' : '🔄 更新'}
             </button>
+            {insightsData && config?.claudeApiKey && (
+              <button
+                onClick={analyzeWithClaude}
+                disabled={isAnalyzing}
+                className="px-6 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
+              >
+                {isAnalyzing ? '分析中...' : '🤖 AI分析'}
+              </button>
+            )}
             <Link
               href="/settings"
               className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm"
@@ -313,7 +361,7 @@ export default function AdReportPage() {
 
             {/* キャンペーン別パフォーマンス */}
             {campaignsData.length > 0 && (
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 mb-8">
                 <h2 className="text-2xl font-bold text-white mb-4">🎯 キャンペーン別パフォーマンス</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
@@ -348,6 +396,27 @@ export default function AdReportPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            )}
+
+            {/* Claude AI分析結果 */}
+            {claudeAnalysis && (
+              <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-md rounded-xl p-6 border border-purple-500/20">
+                <h2 className="text-2xl font-bold text-white mb-4">🤖 AI分析レポート（Claude Sonnet 4.5）</h2>
+                <div className="prose prose-invert max-w-none">
+                  <div
+                    className="text-gray-200 whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{
+                      __html: claudeAnalysis
+                        .replace(/^### /gm, '<h3 class="text-xl font-bold text-white mt-6 mb-3">')
+                        .replace(/^## /gm, '<h2 class="text-2xl font-bold text-white mt-8 mb-4">')
+                        .replace(/^# /gm, '<h1 class="text-3xl font-bold text-white mt-8 mb-4">')
+                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
+                        .replace(/^- /gm, '• ')
+                        .replace(/\n/g, '<br />')
+                    }}
+                  />
                 </div>
               </div>
             )}
