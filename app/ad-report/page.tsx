@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface ApiConfig {
   gomarbleApiKey: string;
@@ -557,20 +558,185 @@ export default function AdReportPage() {
               </div>
             )}
 
+            {/* 日別トレンド */}
+            {dailyTrendsData.length > 0 && (
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 mb-8">
+                <h2 className="text-2xl font-bold text-white mb-6">📊 日別トレンド（過去7日間）</h2>
+
+                {/* 広告費とコンバージョンのグラフ */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-4">広告費・コンバージョン推移</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={dailyTrendsData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9CA3AF"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <YAxis
+                        yAxisId="left"
+                        stroke="#3B82F6"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="#10B981"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1F2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Legend />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="spend"
+                        stroke="#3B82F6"
+                        strokeWidth={2}
+                        name="広告費 (¥)"
+                      />
+                      <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="conversions"
+                        stroke="#10B981"
+                        strokeWidth={2}
+                        name="コンバージョン"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* CPAとROASのグラフ */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-4">CPA・ROAS推移</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={dailyTrendsData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9CA3AF"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <YAxis
+                        yAxisId="left"
+                        stroke="#F59E0B"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="#8B5CF6"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1F2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Legend />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="cpa"
+                        stroke="#F59E0B"
+                        strokeWidth={2}
+                        name="CPA (¥)"
+                      />
+                      <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="roas"
+                        stroke="#8B5CF6"
+                        strokeWidth={2}
+                        name="ROAS"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* CTRとCVRのグラフ */}
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-4">CTR・CVR推移</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={dailyTrendsData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9CA3AF"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <YAxis
+                        stroke="#9CA3AF"
+                        tick={{ fill: '#9CA3AF' }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1F2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Legend />
+                      <Bar
+                        dataKey="ctr"
+                        fill="#06B6D4"
+                        name="CTR (%)"
+                      />
+                      <Bar
+                        dataKey="cvr"
+                        fill="#EC4899"
+                        name="CVR (%)"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
             {/* Claude AI分析結果 */}
             {claudeAnalysis && (
               <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-md rounded-xl p-6 border border-purple-500/20">
                 <h2 className="text-2xl font-bold text-white mb-4">🤖 AI分析レポート（Claude Sonnet 4.5）</h2>
                 <div className="prose prose-invert max-w-none">
                   <div
-                    className="text-gray-200 whitespace-pre-wrap"
+                    className="text-gray-200 markdown-content"
+                    style={{ whiteSpace: 'pre-wrap' }}
                     dangerouslySetInnerHTML={{
                       __html: claudeAnalysis
-                        .replace(/^### /gm, '<h3 class="text-xl font-bold text-white mt-6 mb-3">')
-                        .replace(/^## /gm, '<h2 class="text-2xl font-bold text-white mt-8 mb-4">')
-                        .replace(/^# /gm, '<h1 class="text-3xl font-bold text-white mt-8 mb-4">')
+                        // テーブルのレンダリング
+                        .replace(/\|(.+)\|/g, (match) => {
+                          const cells = match.split('|').filter(c => c.trim());
+                          const isHeaderSeparator = cells.every(c => /^[-:]+$/.test(c.trim()));
+                          if (isHeaderSeparator) return '';
+
+                          const cellsHtml = cells.map(c =>
+                            `<td class="border border-gray-600 px-3 py-2 text-sm">${c.trim()}</td>`
+                          ).join('');
+                          return `<tr>${cellsHtml}</tr>`;
+                        })
+                        .replace(/(<tr>.+<\/tr>[\s\S]*?<tr>.+<\/tr>)/g, '<table class="w-full border-collapse border border-gray-600 my-4">$1</table>')
+                        // 見出し
+                        .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-white mt-6 mb-3">$1</h3>')
+                        .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-white mt-8 mb-4">$1</h2>')
+                        .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-white mt-8 mb-4">$1</h1>')
+                        // 太字
                         .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
-                        .replace(/^- /gm, '• ')
+                        // チェックボックス
+                        .replace(/- \[ \] /g, '<span class="text-gray-400">☐</span> ')
+                        .replace(/- \[x\] /g, '<span class="text-green-400">☑</span> ')
+                        // リスト
+                        .replace(/^- (.+)$/gm, '<div class="ml-4 my-1">• $1</div>')
+                        .replace(/^(\d+)\. (.+)$/gm, '<div class="ml-4 my-1">$1. $2</div>')
+                        // 改行
                         .replace(/\n/g, '<br />')
                     }}
                   />
