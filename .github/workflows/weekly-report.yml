@@ -1,0 +1,43 @@
+name: Weekly Ad Performance Report
+
+on:
+  # 毎週月曜日の午前9時（JST = UTC 0:00）に実行
+  schedule:
+    - cron: '0 0 * * 1'  # 毎週月曜日 00:00 UTC = 09:00 JST
+
+  # 手動実行も可能
+  workflow_dispatch:
+
+jobs:
+  send-weekly-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and send weekly report
+        env:
+          META_API_KEY: ${{ secrets.META_API_KEY }}
+          META_AD_ACCOUNT_ID: ${{ secrets.META_AD_ACCOUNT_ID }}
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          CHATWORK_API_TOKEN: ${{ secrets.CHATWORK_API_TOKEN }}
+          CHATWORK_ROOM_ID: ${{ secrets.CHATWORK_ROOM_ID }}
+        run: npm run report:weekly
+
+      - name: Notify completion
+        if: success()
+        run: echo "✅ Weekly report sent successfully!"
+
+      - name: Notify failure
+        if: failure()
+        run: echo "❌ Failed to send weekly report"
