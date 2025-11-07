@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const campaignsWithInsights = await Promise.all(
       campaignsData.data.map(async (campaign: any) => {
         const insightsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/insights?` +
-          `fields=spend,impressions,clicks,ctr,cpm,cpc,reach,frequency,actions,action_values,cost_per_action_type,purchase_roas,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions&` +
+          `fields=spend,impressions,clicks,ctr,cpm,cpc,reach,frequency,actions,action_values,cost_per_action_type,video_thruplay_watched_actions,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p100_watched_actions&` +
           `date_preset=${datePreset || 'last_7d'}&` +
           `access_token=${apiKey}`;
 
@@ -93,18 +93,6 @@ export async function POST(request: NextRequest) {
                 cpa = parseFloat(insights.spend || '0') / conversions;
               }
 
-              // ROASを計算
-              let roas = 0;
-              if (insights.purchase_roas) {
-                const roasData = insights.purchase_roas.find(
-                  (r: any) => r.action_type === 'purchase' || r.action_type === 'omni_purchase'
-                );
-                roas = roasData ? parseFloat(roasData.value) : 0;
-              }
-              if (!roas && revenue > 0) {
-                roas = revenue / parseFloat(insights.spend || '1');
-              }
-
               // CVRを計算
               const cvr = conversions > 0 && insights.clicks ? (conversions / parseInt(insights.clicks)) * 100 : 0;
 
@@ -124,7 +112,6 @@ export async function POST(request: NextRequest) {
                 frequency: parseFloat(insights.frequency || '0'),
                 cpa: cpa,
                 revenue: revenue,
-                roas: roas,
                 cvr: cvr
               };
             }
@@ -149,7 +136,6 @@ export async function POST(request: NextRequest) {
           frequency: 0,
           cpa: 0,
           revenue: 0,
-          roas: 0,
           cvr: 0
         };
       })

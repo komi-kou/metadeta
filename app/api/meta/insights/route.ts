@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
       'actions',
       'action_values',
       'cost_per_action_type',
-      'purchase_roas',
       'date_start',
       'date_stop'
     ].join(',');
@@ -106,7 +105,6 @@ export async function POST(request: NextRequest) {
       let conversions = 0;
       let revenue = 0;
       let cpa = 0;
-      let purchaseRoas = 0;
       let primaryEventType = '';
 
       for (const eventType of standardEvents) {
@@ -117,21 +115,6 @@ export async function POST(request: NextRequest) {
           primaryEventType = eventType;
           break;
         }
-      }
-
-      // ROASを取得（APIから直接取得できる場合）
-      if (insights.purchase_roas) {
-        const roasData = insights.purchase_roas.find(
-          (roas: any) =>
-            roas.action_type === 'purchase' ||
-            roas.action_type === 'omni_purchase'
-        );
-        purchaseRoas = roasData ? parseFloat(roasData.value) : 0;
-      }
-
-      // ROASが取得できない場合は計算
-      if (!purchaseRoas && revenue > 0) {
-        purchaseRoas = revenue / parseFloat(insights.spend || '1');
       }
 
       // CPAが取得できない場合は計算
@@ -151,7 +134,6 @@ export async function POST(request: NextRequest) {
         reach: parseInt(insights.reach || '0'),
         revenue: revenue,
         cpa: cpa,
-        roas: purchaseRoas,
         cvr: conversions > 0 && insights.clicks ? (conversions / parseInt(insights.clicks)) * 100 : 0,
         date_start: insights.date_start,
         date_stop: insights.date_stop,

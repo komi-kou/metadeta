@@ -132,8 +132,7 @@ export async function POST(request: NextRequest) {
       'reach',
       'actions',
       'action_values',
-      'cost_per_action_type',
-      'purchase_roas'
+      'cost_per_action_type'
     ].join(',');
 
     // 現在の期間のデータを取得
@@ -218,7 +217,6 @@ export async function POST(request: NextRequest) {
       let conversions = 0;
       let revenue = 0;
       let cpa = 0;
-      let purchaseRoas = 0;
       let primaryEventType = '';
 
       for (const eventType of standardEvents) {
@@ -229,21 +227,6 @@ export async function POST(request: NextRequest) {
           primaryEventType = eventType;
           break;
         }
-      }
-
-      // ROASを取得（APIから直接取得できる場合）
-      if (insights.purchase_roas) {
-        const roasData = insights.purchase_roas.find(
-          (roas: any) =>
-            roas.action_type === 'purchase' ||
-            roas.action_type === 'omni_purchase'
-        );
-        purchaseRoas = roasData ? parseFloat(roasData.value) : 0;
-      }
-
-      // ROASが取得できない場合は計算
-      if (!purchaseRoas && revenue > 0) {
-        purchaseRoas = revenue / parseFloat(insights.spend || '1');
       }
 
       // CPAが取得できない場合は計算
@@ -263,7 +246,6 @@ export async function POST(request: NextRequest) {
         reach: parseInt(insights.reach || '0'),
         revenue: revenue,
         cpa: cpa,
-        roas: purchaseRoas,
         cvr: conversions > 0 && insights.clicks ? (conversions / parseInt(insights.clicks)) * 100 : 0,
         primaryEventType: primaryEventType,
         allConversions: allConversions,
@@ -307,7 +289,6 @@ export async function POST(request: NextRequest) {
       reach: calculateChange(currentInsights.reach, previousInsights.reach),
       revenue: calculateChange(currentInsights.revenue, previousInsights.revenue),
       cpa: calculateChange(currentInsights.cpa, previousInsights.cpa),
-      roas: calculateChange(currentInsights.roas, previousInsights.roas),
       cvr: calculateChange(currentInsights.cvr, previousInsights.cvr)
     } : null;
 

@@ -128,9 +128,6 @@ export async function POST(request: NextRequest) {
           cpa = parseFloat(day.spend || '0') / conversions;
         }
 
-        // ROASを計算
-        const roas = revenue > 0 ? revenue / parseFloat(day.spend || '1') : 0;
-
         return {
           date: day.date_start,
           spend: parseFloat(day.spend || '0'),
@@ -144,7 +141,6 @@ export async function POST(request: NextRequest) {
           frequency: parseFloat(day.frequency || '0'),
           cpa: cpa,
           revenue: revenue,
-          roas: roas,
           cvr: conversions > 0 && day.clicks ? (conversions / parseInt(day.clicks)) * 100 : 0
         };
       });
