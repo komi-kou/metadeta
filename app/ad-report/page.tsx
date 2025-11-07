@@ -25,7 +25,6 @@ interface InsightsData {
   reach: number;
   revenue: number;
   cpa: number;
-  roas: number;
   cvr: number;
   date_start: string;
   date_stop: string;
@@ -51,7 +50,6 @@ interface InsightsComparison {
     reach: ComparisonData;
     revenue: ComparisonData;
     cpa: ComparisonData;
-    roas: ComparisonData;
     cvr: ComparisonData;
   } | null;
 }
@@ -504,7 +502,7 @@ export default function AdReportPage() {
             </div>
 
             {/* メインメトリクス */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-md rounded-xl p-6 border border-blue-500/20">
                 <div className="text-blue-300 text-sm mb-2">広告費</div>
                 <div className="flex items-center">
@@ -517,13 +515,6 @@ export default function AdReportPage() {
                 <div className="flex items-center">
                   <div className="text-white text-3xl font-bold">{insightsData.conversions.toLocaleString()}</div>
                   {renderComparison(comparisonData?.comparison?.conversions)}
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-md rounded-xl p-6 border border-purple-500/20">
-                <div className="text-purple-300 text-sm mb-2">ROAS</div>
-                <div className="flex items-center">
-                  <div className="text-white text-3xl font-bold">{insightsData.roas.toFixed(2)}</div>
-                  {renderComparison(comparisonData?.comparison?.roas)}
                 </div>
               </div>
               <div className="bg-gradient-to-br from-orange-500/20 to-orange-600/10 backdrop-blur-md rounded-xl p-6 border border-orange-500/20">
@@ -619,7 +610,6 @@ export default function AdReportPage() {
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CV</th>
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CVR</th>
                         <th className="text-gray-300 text-sm font-semibold pb-3 text-right">CPA</th>
-                        <th className="text-gray-300 text-sm font-semibold pb-3 text-right">ROAS</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -644,7 +634,6 @@ export default function AdReportPage() {
                           <td className="text-gray-300 py-3 text-right">{campaign.conversions.toFixed(0)}</td>
                           <td className="text-gray-300 py-3 text-right">{campaign.cvr.toFixed(2)}%</td>
                           <td className="text-gray-300 py-3 text-right">¥{campaign.cpa.toLocaleString()}</td>
-                          <td className="text-gray-300 py-3 text-right">{campaign.roas.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -708,9 +697,9 @@ export default function AdReportPage() {
                   </ResponsiveContainer>
                 </div>
 
-                {/* CPAとROASのグラフ */}
+                {/* CPAのグラフ */}
                 <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-white mb-4">CPA・ROAS推移</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">CPA推移</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={dailyTrendsData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -720,14 +709,7 @@ export default function AdReportPage() {
                         tick={{ fill: '#9CA3AF' }}
                       />
                       <YAxis
-                        yAxisId="left"
                         stroke="#F59E0B"
-                        tick={{ fill: '#9CA3AF' }}
-                      />
-                      <YAxis
-                        yAxisId="right"
-                        orientation="right"
-                        stroke="#8B5CF6"
                         tick={{ fill: '#9CA3AF' }}
                       />
                       <Tooltip
@@ -739,20 +721,11 @@ export default function AdReportPage() {
                       />
                       <Legend />
                       <Line
-                        yAxisId="left"
                         type="monotone"
                         dataKey="cpa"
                         stroke="#F59E0B"
                         strokeWidth={2}
                         name="CPA (¥)"
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="roas"
-                        stroke="#8B5CF6"
-                        strokeWidth={2}
-                        name="ROAS"
                       />
                     </LineChart>
                   </ResponsiveContainer>
