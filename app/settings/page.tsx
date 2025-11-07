@@ -153,50 +153,50 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 p-8">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 p-8">
+      <div className="max-w-4xl mx-auto">
         {/* ヘッダー */}
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-5xl font-extrabold text-white tracking-tight">⚙️ API連携設定</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-white">⚙️ API連携設定</h1>
           <Link
             href="/"
-            className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white text-lg font-semibold rounded-xl transition-all backdrop-blur-sm border border-white/10 hover:border-white/30"
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors backdrop-blur-sm"
           >
             ← ホーム
           </Link>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Meta Ads設定 */}
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-2xl p-8 border-2 border-white/20 shadow-xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-white">Meta/Facebook Ads API</h2>
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-white">Meta/Facebook Ads API</h2>
               {connectionStatus.gomarble !== null && (
-                <div className={`px-4 py-2 rounded-lg text-base font-bold ${
-                  connectionStatus.gomarble ? 'bg-green-500/30 text-green-200 border-2 border-green-400/50' : 'bg-red-500/30 text-red-200 border-2 border-red-400/50'
+                <div className={`px-3 py-1 rounded text-sm font-semibold ${
+                  connectionStatus.gomarble ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
                 }`}>
                   {connectionStatus.gomarble ? '✓ 接続済み' : '✗ 未接続'}
                 </div>
               )}
             </div>
-            <p className="text-gray-300 text-base mb-6 leading-relaxed">
-              Meta/Facebook Ads データ取得用。<a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200 underline font-semibold">Graph API Explorer</a>でUser Access Tokenを取得してください。必要な権限: ads_read
+            <p className="text-gray-400 text-sm mb-4">
+              Meta/Facebook Ads データ取得用。<a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Graph API Explorer</a>でUser Access Tokenを取得してください。必要な権限: ads_read
             </p>
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="block text-white text-base font-semibold mb-3">Meta User Access Token</label>
+                <label className="block text-white text-sm mb-2">Meta User Access Token</label>
                 <input
                   type="password"
                   value={config.gomarbleApiKey}
                   onChange={(e) => setConfig({...config, gomarbleApiKey: e.target.value})}
                   placeholder="EAAxxxxxxxxxxxxxxxx..."
-                  className="w-full px-5 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-base placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <button
                 onClick={testGoMarbleConnection}
                 disabled={testingConnection}
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-base rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
               >
                 {testingConnection ? '接続中...' : '接続テスト & アカウント取得'}
               </button>
@@ -204,16 +204,16 @@ export default function SettingsPage() {
 
             {/* 広告アカウント選択 */}
             {adAccounts.length > 0 && (
-              <div className="mt-6">
-                <label className="block text-white text-base font-semibold mb-3">広告アカウント選択</label>
+              <div className="mt-4">
+                <label className="block text-white text-sm mb-2">広告アカウント選択</label>
                 <select
                   value={config.selectedAdAccount}
                   onChange={(e) => setConfig({...config, selectedAdAccount: e.target.value})}
-                  className="w-full px-5 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="" className="bg-slate-800">アカウントを選択...</option>
+                  <option value="">アカウントを選択...</option>
                   {adAccounts.map((account) => (
-                    <option key={account.id} value={account.id} className="bg-slate-800">
+                    <option key={account.id} value={account.id}>
                       {account.name} (ID: {account.id})
                     </option>
                   ))}
@@ -223,35 +223,35 @@ export default function SettingsPage() {
           </div>
 
           {/* Claude API設定 */}
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-2xl p-8 border-2 border-white/20 shadow-xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-white">Claude API</h2>
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-white">Claude API</h2>
               {connectionStatus.claude !== null && (
-                <div className={`px-4 py-2 rounded-lg text-base font-bold ${
-                  connectionStatus.claude ? 'bg-green-500/30 text-green-200 border-2 border-green-400/50' : 'bg-red-500/30 text-red-200 border-2 border-red-400/50'
+                <div className={`px-3 py-1 rounded text-sm font-semibold ${
+                  connectionStatus.claude ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
                 }`}>
                   {connectionStatus.claude ? '✓ 接続済み' : '✗ 未接続'}
                 </div>
               )}
             </div>
-            <p className="text-gray-300 text-base mb-6 leading-relaxed">
+            <p className="text-gray-400 text-sm mb-4">
               AI分析用。https://console.anthropic.com/ でAPIキーを取得
             </p>
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="block text-white text-base font-semibold mb-3">APIキー</label>
+                <label className="block text-white text-sm mb-2">APIキー</label>
                 <input
                   type="password"
                   value={config.claudeApiKey}
                   onChange={(e) => setConfig({...config, claudeApiKey: e.target.value})}
                   placeholder="sk-ant-api03-..."
-                  className="w-full px-5 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-base placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <button
                 onClick={testClaudeConnection}
                 disabled={testingConnection}
-                className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white text-base rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                className="px-6 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
               >
                 {testingConnection ? '接続中...' : '接続テスト'}
               </button>
@@ -259,45 +259,45 @@ export default function SettingsPage() {
           </div>
 
           {/* Chatwork API設定 */}
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-2xl p-8 border-2 border-white/20 shadow-xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-white">Chatwork API</h2>
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-white">Chatwork API</h2>
               {connectionStatus.chatwork !== null && (
-                <div className={`px-4 py-2 rounded-lg text-base font-bold ${
-                  connectionStatus.chatwork ? 'bg-green-500/30 text-green-200 border-2 border-green-400/50' : 'bg-red-500/30 text-red-200 border-2 border-red-400/50'
+                <div className={`px-3 py-1 rounded text-sm font-semibold ${
+                  connectionStatus.chatwork ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
                 }`}>
                   {connectionStatus.chatwork ? '✓ 接続済み' : '✗ 未接続'}
                 </div>
               )}
             </div>
-            <p className="text-gray-300 text-base mb-6 leading-relaxed">
+            <p className="text-gray-400 text-sm mb-4">
               レポート自動送信用。Chatwork APIトークンを取得
             </p>
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="block text-white text-base font-semibold mb-3">APIトークン</label>
+                <label className="block text-white text-sm mb-2">APIトークン</label>
                 <input
                   type="password"
                   value={config.chatworkApiToken}
                   onChange={(e) => setConfig({...config, chatworkApiToken: e.target.value})}
                   placeholder="10e7538af625f74890e0f0bc4747c976"
-                  className="w-full px-5 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-base placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-white text-base font-semibold mb-3">送信先ルームID</label>
+                <label className="block text-white text-sm mb-2">送信先ルームID</label>
                 <input
                   type="text"
                   value={config.chatworkRoomId}
                   onChange={(e) => setConfig({...config, chatworkRoomId: e.target.value})}
                   placeholder="406484503"
-                  className="w-full px-5 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-base placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <button
                 onClick={testChatworkConnection}
                 disabled={testingConnection}
-                className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-base rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
               >
                 {testingConnection ? '接続中...' : '接続テスト'}
               </button>
@@ -305,20 +305,20 @@ export default function SettingsPage() {
           </div>
 
           {/* レポート送信設定 */}
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-2xl p-8 border-2 border-white/20 shadow-xl">
-            <h2 className="text-3xl font-bold text-white mb-6">レポート送信設定</h2>
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
+            <h2 className="text-2xl font-bold text-white mb-4">レポート送信設定</h2>
             <div>
-              <label className="block text-white text-base font-semibold mb-3">送信頻度</label>
+              <label className="block text-white text-sm mb-2">送信頻度</label>
               <select
                 value={config.reportFrequency}
                 onChange={(e) => setConfig({...config, reportFrequency: e.target.value as any})}
-                className="w-full px-5 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 mb-3"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="daily" className="bg-slate-800">毎日</option>
-                <option value="weekly" className="bg-slate-800">毎週（推奨）</option>
-                <option value="monthly" className="bg-slate-800">毎月</option>
+                <option value="daily">毎日</option>
+                <option value="weekly">毎週（推奨）</option>
+                <option value="monthly">毎月</option>
               </select>
-              <p className="text-gray-300 text-base leading-relaxed">
+              <p className="text-gray-400 text-sm mt-2">
                 {config.reportFrequency === 'daily' && '毎日午前9時に前日のレポートを送信'}
                 {config.reportFrequency === 'weekly' && '毎週月曜日午前9時に先週のレポートを送信'}
                 {config.reportFrequency === 'monthly' && '毎月1日午前9時に前月のレポートを送信'}
@@ -327,16 +327,16 @@ export default function SettingsPage() {
           </div>
 
           {/* 保存ボタン */}
-          <div className="flex gap-6">
+          <div className="flex gap-4">
             <button
               onClick={handleSave}
-              className="flex-1 px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-2xl font-bold text-xl transition-all shadow-xl hover:shadow-2xl"
+              className="flex-1 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-lg font-bold text-lg transition-all"
             >
               {isSaved ? '✓ 保存しました！' : '設定を保存'}
             </button>
             <Link
               href="/ad-report"
-              className="px-10 py-5 bg-white/10 hover:bg-white/20 text-white text-xl rounded-2xl font-bold transition-all flex items-center border-2 border-white/20 hover:border-white/40"
+              className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition-all flex items-center"
             >
               レポートを見る →
             </Link>
