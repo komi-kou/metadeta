@@ -69,6 +69,7 @@ interface CampaignData {
   reach: number;
   frequency: number;
   cpa: number;
+  cvr: number;
 }
 
 export default function AdReportPage() {
@@ -379,6 +380,7 @@ export default function AdReportPage() {
     if (config && config.gomarbleApiKey && config.selectedAdAccount) {
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, datePreset]);
 
   // 比較インジケーターを表示するヘルパー関数
