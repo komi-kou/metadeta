@@ -89,6 +89,7 @@ export default function AdReportPage() {
   const [datePreset, setDatePreset] = useState('last_7d');
   const [claudeAnalysis, setClaudeAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSendingToChatwork, setIsSendingToChatwork] = useState(false);
 
   // 設定を読み込む
   useEffect(() => {
@@ -328,6 +329,51 @@ export default function AdReportPage() {
     }
   };
 
+  // Chatworkにレポートを送信
+  const sendToChatwork = async () => {
+    if (!config || !config.chatworkApiToken || !config.chatworkRoomId || !insightsData) {
+      alert('Chatwork設定とデータが必要です。設定ページで設定を完了してください。');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Chatworkルーム ${config.chatworkRoomId} にレポートを送信しますか？`
+    );
+
+    if (!confirmed) return;
+
+    setIsSendingToChatwork(true);
+    try {
+      const response = await fetch('/api/chatwork/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiToken: config.chatworkApiToken,
+          roomId: config.chatworkRoomId,
+          insights: insightsData,
+          campaigns: campaignsData,
+          analysis: claudeAnalysis
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          alert('✅ レポートをChatworkに送信しました！');
+        } else {
+          alert('❌ レポート送信に失敗しました');
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`❌ Chatwork送信エラー: ${errorData.error || '不明なエラー'}\n\n設定ページでAPIトークンとルームIDを確認してください。`);
+      }
+    } catch (err) {
+      alert(`❌ エラーが発生しました: ${err}`);
+    } finally {
+      setIsSendingToChatwork(false);
+    }
+  };
+
   // 設定変更時に自動取得
   useEffect(() => {
     if (config && config.gomarbleApiKey && config.selectedAdAccount) {
@@ -441,6 +487,15 @@ export default function AdReportPage() {
                 className="px-8 py-4 bg-purple-500 hover:bg-purple-600 text-white rounded-xl font-bold text-base transition-all disabled:opacity-50"
               >
                 {isAnalyzing ? '分析中...' : '🤖 AI分析'}
+              </button>
+            )}
+            {insightsData && config?.chatworkApiToken && config?.chatworkRoomId && (
+              <button
+                onClick={sendToChatwork}
+                disabled={isSendingToChatwork}
+                className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-base transition-all disabled:opacity-50"
+              >
+                {isSendingToChatwork ? '送信中...' : '📤 Chatwork送信'}
               </button>
             )}
             <Link

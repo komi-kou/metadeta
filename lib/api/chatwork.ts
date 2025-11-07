@@ -60,9 +60,9 @@ export function formatAdReportForChatwork(data: any): string {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 💰 広告費: ¥${summary.spend.toLocaleString()}
-📊 ROAS: ${summary.roas}
 🎯 コンバージョン: ${summary.conversions}件
 💵 CPA: ¥${summary.cpa.toLocaleString()}
+📊 CVR: ${summary.cvr}%
 👁 インプレッション: ${summary.impressions.toLocaleString()}
 🖱 クリック数: ${summary.clicks.toLocaleString()}
 📈 CTR: ${summary.ctr}%
@@ -73,7 +73,7 @@ export function formatAdReportForChatwork(data: any): string {
 
 ${campaignPerformance.slice(0, 3).map((campaign: any, i: number) =>
 `${i + 1}. ${campaign.name}
-   - ROAS: ${campaign.roas} | CV: ${campaign.conversions}件
+   - CPA: ¥${campaign.cpa.toLocaleString()} | CV: ${campaign.conversions}件
    - 広告費: ¥${campaign.spend.toLocaleString()}`
 ).join('\n\n')}
 
