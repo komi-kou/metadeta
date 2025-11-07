@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     // すべてのページを取得
     while (nextUrl) {
-      const response = await fetch(nextUrl, {
+      const response: Response = await fetch(nextUrl, {
         method: 'GET',
       });
 
