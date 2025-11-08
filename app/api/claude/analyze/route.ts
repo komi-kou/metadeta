@@ -162,7 +162,18 @@ ${devices.map((d: any) => `
 
 **重要:** すべてのデータを、専門用語を最小限に抑え、**ビジネスへの影響**に焦点を当てて提示してください。広告指標ではなく、ビジネスの成果を重視してください。
 
-以下の形式で視覚的なダッシュボードを作成してください：
+**出力はHTML形式で、以下の構造を使用してください：**
+
+### HTML構造の指定
+
+1. **セクション**: [div class="analysis-section"]...[/div] で各セクションを囲む
+2. **セクションタイトル**: [h2 class="section-title"]📊 セクション名[/h2] を使用
+3. **サマリーカード**: [div class="summary-card"][div class="card-label"]ラベル[/div][div class="card-value"]値[/div][/div] を使用
+4. **インサイトボックス**: [div class="insights-box"][h3]💡 タイトル[/h3][ul][li]インサイト内容[/li][/ul][/div] を使用
+5. **テーブル**: [table class="comparison-table"][thead][tr][th]ヘッダー[/th][/tr][/thead][tbody][tr][td]データ[/td][/tr][/tbody][/table] を使用
+6. **グラフプレースホルダー**: グラフが必要な場合は [div class="chart-placeholder" data-chart-type="bar" data-chart-id="campaign-chart"][/div] を使用
+
+注: 上記の [ ] は実際には < > として出力してください。
 
 ### 📊 1. パフォーマンス概要
 
@@ -171,12 +182,48 @@ ${devices.map((d: any) => `
 - **評価根拠:** [データに基づく具体的な理由]
 
 #### 📈 主要指標の状況
-| 指標 | 現在値 | 前期比 | 状態 | 評価 |
-|------|--------|--------|------|------|
-| コンバージョン単価（CPA） | ¥XXX | ${comparison ? '↑/↓ X%' : '-'} | 🟢/🟡/🔴 | [良い/改善必要/要注意の理由] |
-| コンバージョン率（CVR） | X.XX% | ${comparison ? '↑/↓ X%' : '-'} | 🟢/🟡/🔴 | [理由] |
-| クリック率（CTR） | X.XX% | ${comparison ? '↑/↓ X%' : '-'} | 🟢/🟡/🔴 | [理由] |
-| 広告疲弊度（Frequency） | X.XX | ${comparison ? '↑/↓ X%' : '-'} | 🟢/🟡/🔴 | [理由] |
+以下の形式でテーブルを作成してください（[ ] は実際には < > として出力）：
+[table class="comparison-table"]
+[thead]
+[tr]
+[th]指標[/th]
+[th]現在値[/th]
+[th]前期比[/th]
+[th]状態[/th]
+[th]評価[/th]
+[/tr]
+[/thead]
+[tbody]
+[tr]
+[td]コンバージョン単価（CPA）[/td]
+[td]¥XXX[/td]
+[td]${comparison ? '↑/↓ X%' : '-'}[/td]
+[td]🟢/🟡/🔴[/td]
+[td][良い/改善必要/要注意の理由][/td]
+[/tr]
+[tr]
+[td]コンバージョン率（CVR）[/td]
+[td]X.XX%[/td]
+[td]${comparison ? '↑/↓ X%' : '-'}[/td]
+[td]🟢/🟡/🔴[/td]
+[td][理由][/td]
+[/tr]
+[tr]
+[td]クリック率（CTR）[/td]
+[td]X.XX%[/td]
+[td]${comparison ? '↑/↓ X%' : '-'}[/td]
+[td]🟢/🟡/🔴[/td]
+[td][理由][/td]
+[/tr]
+[tr]
+[td]広告疲弊度（Frequency）[/td]
+[td]X.XX[/td]
+[td]${comparison ? '↑/↓ X%' : '-'}[/td]
+[td]🟢/🟡/🔴[/td]
+[td][理由][/td]
+[/tr]
+[/tbody]
+[/table]
 
 **凡例:** 🟢 = 良好 | 🟡 = 要改善 | 🔴 = 緊急対応必要
 
@@ -185,96 +232,209 @@ ${devices.map((d: any) => `
 ### 🏆 2. 最も成果を出している要素
 
 #### ベストパフォーマンスのセグメント
-- **👥 オーディエンス:** [年齢層] × [性別] - CPA ¥XXX、CV XX件
-  - なぜ効果的か: [理由]
-  - 活用方法: [具体的な推奨]
-
-- **📱 配信面:** [Facebook Feed/Instagram Stories等] - 広告費 ¥XXX、CV XX件
-  - なぜ効果的か: [理由]
-  - 活用方法: [具体的な推奨]
-
-- **💻 デバイス:** [Mobile/Desktop] - CPA ¥XXX（最安）
-  - なぜ効果的か: [理由]
+以下の形式でインサイトボックスを作成してください（[ ] は実際には < > として出力）：
+[div class="insights-box"]
+[h3]💡 ベストパフォーマンスのセグメント[/h3]
+[ul]
+[li][strong]👥 オーディエンス:[/strong] [年齢層] × [性別] - CPA ¥XXX、CV XX件
+  [ul]
+  [li]なぜ効果的か: [理由][/li]
+  [li]活用方法: [具体的な推奨][/li]
+  [/ul]
+[/li]
+[li][strong]📱 配信面:[/strong] [Facebook Feed/Instagram Stories等] - 広告費 ¥XXX、CV XX件
+  [ul]
+  [li]なぜ効果的か: [理由][/li]
+  [li]活用方法: [具体的な推奨][/li]
+  [/ul]
+[/li]
+[li][strong]💻 デバイス:[/strong] [Mobile/Desktop] - CPA ¥XXX（最安）
+  [ul]
+  [li]なぜ効果的か: [理由][/li]
+  [/ul]
+[/li]
+[/ul]
+[/div]
 
 #### 成功パターンの特定
-1. [共通要素1]
-2. [共通要素2]
-3. [横展開できる戦略]
+[div class="insights-box"]
+[h3]💡 成功パターン[/h3]
+[ol]
+[li][共通要素1][/li]
+[li][共通要素2][/li]
+[li][横展開できる戦略][/li]
+[/ol]
+[/div]
 
 ---
 
 ### ⚠️ 3. 改善が必要な領域（優先度順）
 
 #### 🔴 最優先で対応すべき課題
-**課題:** [具体的な問題]
-- **ビジネスへの影響:** 広告費の XX% (¥XXX) に影響
-- **現状:** [数値で示す]
-- **推奨アクション:** [具体的な改善策]
+[div class="insights-box" style="border-left-color: #d63031;"]
+[h3 style="color: #d63031;"]🔴 最優先で対応すべき課題[/h3]
+[p][strong]課題:[/strong] [具体的な問題]][/p]
+[ul]
+[li][strong]ビジネスへの影響:[/strong] 広告費の XX% (¥XXX) に影響[/li]
+[li][strong]現状:[/strong] [数値で示す]][/li]
+[li][strong]推奨アクション:[/strong] [具体的な改善策]][/li]
+[/ul]
+[/div]
 
 #### 🟡 重要な改善ポイント
-**課題:** [2番目の問題]
-- **ビジネスへの影響:** [定量的に]
-- **現状:** [数値で示す]
-- **推奨アクション:** [具体的な改善策]
+[div class="insights-box" style="border-left-color: #f39c12;"]
+[h3 style="color: #f39c12;"]🟡 重要な改善ポイント[/h3]
+[p][strong]課題:[/strong] [2番目の問題]][/p]
+[ul]
+[li][strong]ビジネスへの影響:[/strong] [定量的に]][/li]
+[li][strong]現状:[/strong] [数値で示す]][/li]
+[li][strong]推奨アクション:[/strong] [具体的な改善策]][/li]
+[/ul]
+[/div]
 
 #### 🟢 長期的な最適化
-**課題:** [3番目の問題]
-- **ビジネスへの影響:** [定量的に]
-- **推奨アクション:** [具体的な改善策]
+[div class="insights-box" style="border-left-color: #00b894;"]
+[h3 style="color: #00b894;"]🟢 長期的な最適化[/h3]
+[p][strong]課題:[/strong] [3番目の問題]][/p]
+[ul]
+[li][strong]ビジネスへの影響:[/strong] [定量的に]][/li]
+[li][strong]推奨アクション:[/strong] [具体的な改善策]][/li]
+[/ul]
+[/div]
 
 ---
 
 ### 👥 4. オーディエンス分析
 
 #### 最も価値のあるセグメント
-- 🏆 **[年齢層] × [性別]:** CPA ¥XXX、CV XX件
-  - **推奨:** 予算を XX% 増やす
-
-- 🟡 **[年齢層] × [性別]:** CPA ¥XXX、CVR低い
-  - **推奨:** クリエイティブを変更してテスト
-
-- 🔴 **[年齢層] × [性別]:** CPA ¥XXX（非効率）
-  - **推奨:** 予算を削減または停止
+以下の形式でテーブルを作成してください（[ ] は実際には < > として出力）：
+[table class="comparison-table"]
+[thead]
+[tr]
+[th]セグメント[/th]
+[th]CPA[/th]
+[th]CV[/th]
+[th]状態[/th]
+[th]推奨アクション[/th]
+[/tr]
+[/thead]
+[tbody]
+[tr]
+[td]🏆 [年齢層] × [性別][/td]
+[td]¥XXX[/td]
+[td]XX件[/td]
+[td]🟢[/td]
+[td]予算を XX% 増やす[/td]
+[/tr]
+[tr]
+[td]🟡 [年齢層] × [性別][/td]
+[td]¥XXX[/td]
+[td]CVR低い[/td]
+[td]🟡[/td]
+[td]クリエイティブを変更してテスト[/td]
+[/tr]
+[tr]
+[td]🔴 [年齢層] × [性別][/td]
+[td]¥XXX（非効率）[/td]
+[td]-[/td]
+[td]🔴[/td]
+[td]予算を削減または停止[/td]
+[/tr]
+[/tbody]
+[/table]
 
 #### 未開拓の機会
-- [パフォーマンスは良いが予算配分が少ないセグメント]
+[div class="insights-box"]
+[h3]💡 未開拓の機会[/h3]
+[ul]
+[li][パフォーマンスは良いが予算配分が少ないセグメント]][/li]
+[/ul]
+[/div]
 
 #### 飽和の兆候
 ${placements && placements.byPublisher ? `
-- [高フリークエンシーで疲弊している配信面やセグメント]
+[div class="insights-box"]
+[h3]⚠️ 飽和の兆候[/h3]
+[ul]
+[li][高フリークエンシーで疲弊している配信面やセグメント]][/li]
+[/ul]
+[/div]
 ` : ''}
 
 ---
 
 ### 📋 5. 次のステップ（実行可能なアクション）
 
-#### すぐに実行すべきアクション
-1. **[具体的なアクション]**
-   - 所要時間: XX分
-   - 期待される成果: [CPA -XX% または CV +XX件]
-   - 手順: [ステップバイステップ]
+**重要:** 上記の「⚠️ 3. 改善が必要な領域」で特定した各課題に対して、具体的な実行可能なアクションを必ず生成してください。課題が3つある場合は、最低3つのアクションを生成してください。
 
-2. **[具体的なアクション]**
-   - 所要時間: XX分
-   - 期待される成果: [定量的な目標]
-   - 手順: [ステップバイステップ]
+#### すぐに実行すべきアクション
+[div class="insights-box"]
+[h3]📋 すぐに実行すべきアクション[/h3]
+[ol]
+[li][strong][具体的なアクション1 - 最優先課題に対応]][/strong]
+  [ul]
+  [li]所要時間: XX分[/li]
+  [li]期待される成果: [CPA -XX% または CV +XX件]][/li]
+  [li]手順: [ステップバイステップ]][/li]
+  [/ul]
+[/li]
+[li][strong][具体的なアクション2 - 2番目の課題に対応]][/strong]
+  [ul]
+  [li]所要時間: XX分[/li]
+  [li]期待される成果: [定量的な目標]][/li]
+  [li]手順: [ステップバイステップ]][/li]
+  [/ul]
+[/li]
+[li][strong][具体的なアクション3 - 3番目の課題に対応]][/strong]
+  [ul]
+  [li]所要時間: XX分[/li]
+  [li]期待される成果: [定量的な目標]][/li]
+  [li]手順: [ステップバイステップ]][/li]
+  [/ul]
+[/li]
+[/ol]
+[/div]
+
+**注意:** 上記は例です。実際のデータに基づいて、特定した課題の数だけアクションを生成してください。最低でも2つ以上、理想的には3-5つのアクションを生成してください。
 
 #### 今週中に実行すべきアクション
-3. **[具体的なアクション]**
-   - 所要時間: X時間
-   - 期待される成果: [定量的な目標]
+[div class="insights-box"]
+[h3]📅 今週中に実行すべきアクション[/h3]
+[ol]
+[li][strong][具体的なアクション1]][/strong]
+  [ul]
+  [li]所要時間: X時間[/li]
+  [li]期待される成果: [定量的な目標]][/li]
+  [/ul]
+[/li]
+[li][strong][具体的なアクション2]][/strong]
+  [ul]
+  [li]所要時間: X時間[/li]
+  [li]期待される成果: [定量的な目標]][/li]
+  [/ul]
+[/li]
+[/ol]
+[/div]
 
 ---
 
 ### 📌 重要な注意事項
 
+- **HTML形式で出力:** 上記のHTML構造を使用して、視覚的に見やすいレポートを作成してください
+- **HTMLタグの変換:** プロンプト内で [ ] と記述されている部分は、実際の出力では < > に変換してください（例: [div] → <div>, [/div] → </div>）
 - **視覚的な表現:** 🟢🟡🔴の絵文字を使って状態を一目で判断できるようにする
 - **ビジネス言語:** 技術的な専門用語ではなく、ビジネスへの影響で説明する
 - **具体的な数値:** 「改善する」ではなく「CPA を ¥XXX から ¥YYY に下げる」のように具体的に
 - **実行可能性:** すべての推奨事項に具体的な手順を含める
 - **ROASは使用しない:** CPA、CVR、CTRなどの指標に焦点を当てる
 
-上記の形式に従って、明確なセクション区切りを持つ視覚的なダッシュボードとして分析レポートを作成してください。
+**重要:** 上記のHTML構造に従って、[ ] を < > に変換した完全なHTMLコードとして、明確なセクション区切りを持つ視覚的なダッシュボードとして分析レポートを作成してください。
+
+**特に重要な指示:**
+- 「📋 5. 次のステップ（実行可能なアクション）」セクションでは、必ず複数のアクション（最低2つ以上、理想的には3-5つ）を生成してください
+- 「⚠️ 3. 改善が必要な領域」で特定した各課題に対して、対応するアクションを必ず生成してください
+- アクションは具体的で実行可能なものにしてください
+- レスポンスは完全に生成してください。途中で止めないでください。
 `;
 
     // Claude APIを呼び出し
@@ -287,7 +447,7 @@ ${placements && placements.byPublisher ? `
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 8000,
+        max_tokens: 16000,
         messages: [
           {
             role: 'user',
@@ -309,12 +469,77 @@ ${placements && placements.byPublisher ? `
 
     // Claude APIのレスポンスから分析結果を抽出
     const analysis = data.content?.[0]?.text || '';
+    
+    // トークン使用量をログに出力（デバッグ用）
+    if (data.usage) {
+      console.log('Claude API Usage:', {
+        input_tokens: data.usage.input_tokens,
+        output_tokens: data.usage.output_tokens,
+        total_tokens: data.usage.input_tokens + data.usage.output_tokens,
+        max_tokens: 16000,
+        usage_percentage: ((data.usage.input_tokens + data.usage.output_tokens) / 16000 * 100).toFixed(1) + '%',
+        stop_reason: data.stop_reason || 'unknown'
+      });
+      
+      // トークン制限に近い場合の警告
+      if (data.usage.output_tokens >= 15000) {
+        console.warn('⚠️ トークン使用量が上限に近づいています。レスポンスが途中で切れている可能性があります。');
+      }
+      
+      // stop_reasonがmax_tokensの場合、途中で切れている
+      if (data.stop_reason === 'max_tokens') {
+        console.warn('⚠️ トークン制限に達しました。レスポンスが途中で切れています。max_tokensを増やすことを検討してください。');
+      }
+    }
+    
+    // レスポンスが途中で切れていないか確認
+    const analysisLength = analysis.length;
+    console.log('Analysis response length:', analysisLength, 'characters');
+    
+    // 最後のセクションが完全か確認
+    const hasActionSteps = analysis.includes('📋 5. 次のステップ') || analysis.includes('すぐに実行すべきアクション') || analysis.includes('実行可能なアクション');
+    
+    // アクション項目の数をカウント（HTMLタグの形式に応じて）
+    const actionCountPatterns = [
+      /<li><strong>/g,  // HTML形式
+      /\[li\]\[strong\]/g,  // [ ]形式
+      /<li[^>]*><strong>/g  // 属性付きHTML形式
+    ];
+    let actionCount = 0;
+    for (const pattern of actionCountPatterns) {
+      const matches = analysis.match(pattern);
+      if (matches && matches.length > actionCount) {
+        actionCount = matches.length;
+      }
+    }
+    
+    // 「すぐに実行すべきアクション」セクション内のアクション数を確認
+    const immediateActionsMatch = analysis.match(/すぐに実行すべきアクション[\s\S]*?今週中に実行すべきアクション/);
+    const immediateActionCount = immediateActionsMatch ? 
+      (immediateActionsMatch[0].match(/<li><strong>|\[li\]\[strong\]/g) || []).length : 0;
+    
+    console.log('Action steps found:', hasActionSteps);
+    console.log('Total action items count:', actionCount);
+    console.log('Immediate action items count:', immediateActionCount);
+    
+    if (hasActionSteps && immediateActionCount < 2) {
+      console.warn('⚠️ 「すぐに実行すべきアクション」セクションにアクションが1つしかありません。プロンプトの指示を確認してください。');
+    }
 
     return NextResponse.json({
       success: true,
       analysis: analysis,
       model: data.model,
-      usage: data.usage
+      usage: data.usage,
+      stop_reason: data.stop_reason,
+      debug: {
+        analysis_length: analysisLength,
+        has_action_steps: hasActionSteps,
+        total_action_count: actionCount,
+        immediate_action_count: immediateActionCount,
+        token_warning: data.usage && data.usage.output_tokens >= 15000,
+        truncated: data.stop_reason === 'max_tokens'
+      }
     });
   } catch (error) {
     console.error('Claude Analysis Error:', error);

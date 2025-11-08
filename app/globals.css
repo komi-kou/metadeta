@@ -38,3 +38,319 @@ body {
     opacity: 1;
   }
 }
+
+/* AI分析レポート用スタイル */
+.analysis-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid rgba(102, 126, 234, 0.5);
+}
+
+.summary-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.card-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.insights-box {
+  background: linear-gradient(135deg, rgba(255, 236, 210, 0.1) 0%, rgba(252, 182, 159, 0.1) 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.25rem 0;
+  border-left: 5px solid #ff6b6b;
+}
+
+.insights-box h3 {
+  color: #ff6b6b;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.insights-box ul,
+.insights-box ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.insights-box li {
+  padding: 0.625rem 0;
+  padding-left: 1.875rem;
+  position: relative;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.insights-box ul > li:before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.insights-box ol {
+  counter-reset: item;
+}
+
+.insights-box ol > li {
+  counter-increment: item;
+  padding-left: 2rem;
+}
+
+.insights-box ol > li:before {
+  content: counter(item) ".";
+  position: absolute;
+  left: 0;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.insights-box ul ul,
+.insights-box ol ul {
+  margin-top: 0.5rem;
+  margin-left: 1rem;
+}
+
+.insights-box ul ul li:before {
+  content: "•";
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.comparison-table th {
+  background: rgba(102, 126, 234, 0.3);
+  color: white;
+  padding: 0.9375rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.comparison-table td {
+  padding: 0.9375rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+}
+
+.comparison-table tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.highlight-positive {
+  color: #00b894;
+  font-weight: 600;
+}
+
+.highlight-negative {
+  color: #d63031;
+  font-weight: 600;
+}
+
+.metric-badge {
+  display: inline-block;
+  padding: 0.3125rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.3125rem;
+}
+
+.badge-excellent {
+  background: rgba(212, 237, 218, 0.2);
+  color: #00b894;
+}
+
+.badge-good {
+  background: rgba(255, 243, 205, 0.2);
+  color: #f39c12;
+}
+
+.badge-needs-improvement {
+  background: rgba(248, 215, 218, 0.2);
+  color: #d63031;
+}
+
+.chart-placeholder {
+  position: relative;
+  height: 400px;
+  margin: 1.875rem 0;
+  background: rgba(248, 249, 250, 0.05);
+  padding: 1.25rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* AI分析レポート用コンテナ */
+.claude-analysis-content {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* AI分析結果内のすべての要素に基本色を設定 */
+.claude-analysis-content *:not(.insights-box):not(.insights-box *) {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content div:not(.insights-box):not(.insights-box div) {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content span:not(.insights-box span) {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* AI分析レポート内のテキストスタイル */
+.claude-analysis-content .analysis-section,
+.claude-analysis-content .analysis-section p,
+.claude-analysis-content p {
+  color: rgba(255, 255, 255, 0.95) !important;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.claude-analysis-content .analysis-section strong,
+.claude-analysis-content strong {
+  color: white !important;
+  font-weight: 600;
+}
+
+.claude-analysis-content .analysis-section h1,
+.claude-analysis-content .analysis-section h2,
+.claude-analysis-content .analysis-section h3,
+.claude-analysis-content .analysis-section h4,
+.claude-analysis-content .analysis-section h5,
+.claude-analysis-content .analysis-section h6,
+.claude-analysis-content h1,
+.claude-analysis-content h2,
+.claude-analysis-content h3,
+.claude-analysis-content h4,
+.claude-analysis-content h5,
+.claude-analysis-content h6 {
+  color: white !important;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.claude-analysis-content .analysis-section h2,
+.claude-analysis-content h2 {
+  font-size: 1.5rem;
+}
+
+.claude-analysis-content .analysis-section h3,
+.claude-analysis-content h3 {
+  font-size: 1.25rem;
+}
+
+.claude-analysis-content .analysis-section h4,
+.claude-analysis-content h4 {
+  font-size: 1.125rem;
+}
+
+.claude-analysis-content .section-title {
+  color: white !important;
+}
+
+.claude-analysis-content .insights-box {
+  background: linear-gradient(135deg, rgba(255, 236, 210, 0.15) 0%, rgba(252, 182, 159, 0.15) 100%) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content .insights-box h3 {
+  color: #ff6b6b !important;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.claude-analysis-content .insights-box li,
+.claude-analysis-content .insights-box p {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content .insights-box strong {
+  color: white !important;
+  font-weight: 600;
+}
+
+.claude-analysis-content .insights-box ul > li:before {
+  color: #ff6b6b !important;
+}
+
+.claude-analysis-content .insights-box ol > li:before {
+  color: #ff6b6b !important;
+}
+
+.claude-analysis-content .comparison-table {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content .comparison-table th {
+  color: white !important;
+}
+
+.claude-analysis-content .comparison-table td {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.claude-analysis-content .summary-card {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content .card-label {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.claude-analysis-content .card-value {
+  color: #667eea !important;
+}

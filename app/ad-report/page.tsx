@@ -72,6 +72,25 @@ interface CampaignData {
   cvr: number;
 }
 
+// HTMLサニタイゼーション関数
+function sanitizeHtml(html: string): string {
+  // 危険なスクリプトやイベントハンドラーを削除
+  let sanitized = html
+    // scriptタグを削除
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // イベントハンドラー属性を削除
+    .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
+    // javascript:プロトコルを削除
+    .replace(/javascript:/gi, '')
+    // iframeを削除
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    // object/embedを削除
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
+
+  return sanitized;
+}
+
 export default function AdReportPage() {
   const [config, setConfig] = useState<ApiConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -312,18 +331,42 @@ export default function AdReportPage() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          setClaudeAnalysis(result.analysis);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const result = await response.json();
+          if (result.success) {
+            setClaudeAnalysis(result.analysis);
+          } else {
+            alert('Claude分析に失敗しました: ' + (result.error || '不明なエラー'));
+          }
         } else {
-          alert('Claude分析に失敗しました');
+          const text = await response.text();
+          console.error('Unexpected response type:', contentType, text.substring(0, 200));
+          alert('Claude分析エラー: サーバーから予期しない形式のレスポンスが返されました');
         }
       } else {
-        const errorData = await response.json();
-        alert(`Claude分析エラー: ${errorData.error}`);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json();
+            alert(`Claude分析エラー: ${errorData.error || '不明なエラー'}`);
+          } catch (e) {
+            alert(`Claude分析エラー: HTTP ${response.status} ${response.statusText}`);
+          }
+        } else {
+          const text = await response.text();
+          console.error('Error response:', text.substring(0, 200));
+          alert(`Claude分析エラー: HTTP ${response.status} ${response.statusText}`);
+        }
       }
-    } catch (err) {
-      alert(`エラーが発生しました: ${err}`);
+    } catch (err: any) {
+      console.error('Claude analysis error:', err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage.includes('JSON')) {
+        alert('エラーが発生しました: サーバーからの応答を解析できませんでした。サーバーのログを確認してください。');
+      } else {
+        alert(`エラーが発生しました: ${errorMessage}`);
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -775,39 +818,15 @@ export default function AdReportPage() {
             {/* Claude AI分析結果 */}
             {claudeAnalysis && (
               <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-md rounded-xl p-6 border border-purple-500/20">
-                <h2 className="text-2xl font-bold text-white mb-4">🤖 AI分析レポート（Claude Sonnet 4.5）</h2>
-                <div className="prose prose-invert max-w-none">
+                <h2 className="text-2xl font-bold text-white mb-6">🤖 AI分析レポート（Claude Sonnet 4.5）</h2>
+                <div className="claude-analysis-content" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
                   <div
-                    className="text-gray-200 markdown-content"
-                    style={{ whiteSpace: 'pre-wrap' }}
+                    style={{ 
+                      color: 'rgba(255, 255, 255, 0.95)',
+                      lineHeight: '1.6'
+                    }}
                     dangerouslySetInnerHTML={{
-                      __html: claudeAnalysis
-                        // テーブルのレンダリング
-                        .replace(/\|(.+)\|/g, (match) => {
-                          const cells = match.split('|').filter(c => c.trim());
-                          const isHeaderSeparator = cells.every(c => /^[-:]+$/.test(c.trim()));
-                          if (isHeaderSeparator) return '';
-
-                          const cellsHtml = cells.map(c =>
-                            `<td class="border border-gray-600 px-3 py-2 text-sm">${c.trim()}</td>`
-                          ).join('');
-                          return `<tr>${cellsHtml}</tr>`;
-                        })
-                        .replace(/(<tr>.+<\/tr>[\s\S]*?<tr>.+<\/tr>)/g, '<table class="w-full border-collapse border border-gray-600 my-4">$1</table>')
-                        // 見出し
-                        .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-white mt-6 mb-3">$1</h3>')
-                        .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-white mt-8 mb-4">$1</h2>')
-                        .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-white mt-8 mb-4">$1</h1>')
-                        // 太字
-                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
-                        // チェックボックス
-                        .replace(/- \[ \] /g, '<span class="text-gray-400">☐</span> ')
-                        .replace(/- \[x\] /g, '<span class="text-green-400">☑</span> ')
-                        // リスト
-                        .replace(/^- (.+)$/gm, '<div class="ml-4 my-1">• $1</div>')
-                        .replace(/^(\d+)\. (.+)$/gm, '<div class="ml-4 my-1">$1. $2</div>')
-                        // 改行
-                        .replace(/\n/g, '<br />')
+                      __html: sanitizeHtml(claudeAnalysis)
                     }}
                   />
                 </div>
