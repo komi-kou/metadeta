@@ -235,18 +235,35 @@ body {
 /* AI分析レポート用コンテナ */
 .claude-analysis-content {
   color: rgba(255, 255, 255, 0.95) !important;
+  background: transparent !important;
 }
 
-/* AI分析結果内のすべての要素に基本色を設定 */
-.claude-analysis-content *:not(.insights-box):not(.insights-box *) {
+/* AI分析結果内のすべての要素に基本色を設定（インラインスタイルを上書き） */
+.claude-analysis-content * {
   color: rgba(255, 255, 255, 0.95) !important;
 }
 
-.claude-analysis-content div:not(.insights-box):not(.insights-box div) {
+.claude-analysis-content div {
   color: rgba(255, 255, 255, 0.95) !important;
 }
 
-.claude-analysis-content span:not(.insights-box span) {
+.claude-analysis-content span {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content p {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content li {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content td {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content th {
   color: rgba(255, 255, 255, 0.95) !important;
 }
 
@@ -353,4 +370,24 @@ body {
 
 .claude-analysis-content .card-value {
   color: #667eea !important;
+}
+
+/* インラインスタイルを上書きするための追加スタイル */
+.claude-analysis-content [style*="color"] {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claude-analysis-content [style*="color: white"],
+.claude-analysis-content [style*="color: #fff"],
+.claude-analysis-content [style*="color: #ffffff"],
+.claude-analysis-content [style*="color: rgb(255, 255, 255)"],
+.claude-analysis-content [style*="color: rgba(255, 255, 255"] {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* 背景色が白っぽい要素のテキストを黒に変更（必要に応じて） */
+.claude-analysis-content [style*="background"][style*="white"],
+.claude-analysis-content [style*="background"][style*="#fff"],
+.claude-analysis-content [style*="background"][style*="#ffffff"] {
+  color: rgba(0, 0, 0, 0.9) !important;
 }

@@ -88,6 +88,20 @@ function sanitizeHtml(html: string): string {
     .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
 
+  // インラインスタイルのcolorプロパティを削除（白いテキストの問題を解決）
+  // より確実な方法：style属性全体を処理
+  sanitized = sanitized.replace(/style\s*=\s*["']([^"']*)["']/gi, (match, styleContent) => {
+    // colorプロパティを削除
+    let cleanedStyle = styleContent
+      .replace(/\s*color\s*:\s*[^;]+;?/gi, '') // colorプロパティを削除
+      .replace(/;\s*;/g, ';') // 連続するセミコロンを1つに
+      .replace(/^;+|;+$/g, '') // 先頭と末尾のセミコロンを削除
+      .trim();
+    
+    // 残りのスタイルがあれば返す、なければ空文字列
+    return cleanedStyle ? `style="${cleanedStyle}"` : '';
+  });
+
   return sanitized;
 }
 
@@ -819,10 +833,11 @@ export default function AdReportPage() {
             {claudeAnalysis && (
               <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-md rounded-xl p-6 border border-purple-500/20">
                 <h2 className="text-2xl font-bold text-white mb-6">🤖 AI分析レポート（Claude Sonnet 4.5）</h2>
-                <div className="claude-analysis-content" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
+                <div className="claude-analysis-content">
                   <div
+                    className="claude-analysis-inner"
                     style={{ 
-                      color: 'rgba(255, 255, 255, 0.95)',
+                      color: 'rgba(255, 255, 255, 0.95) !important',
                       lineHeight: '1.6'
                     }}
                     dangerouslySetInnerHTML={{
