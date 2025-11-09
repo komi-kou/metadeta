@@ -238,6 +238,45 @@ body {
   background: transparent !important;
 }
 
+/* 背景色が白または明るい色の要素を検出してテキストを黒に */
+.claude-analysis-content div[style*="background"]:not([style*="rgba"]):not([style*="transparent"]),
+.claude-analysis-content div[style*="background-color"]:not([style*="rgba"]):not([style*="transparent"]),
+.claude-analysis-content [style*="background: white"],
+.claude-analysis-content [style*="background-color: white"],
+.claude-analysis-content [style*="background:#fff"],
+.claude-analysis-content [style*="background-color:#fff"],
+.claude-analysis-content [style*="background: #fff"],
+.claude-analysis-content [style*="background-color: #fff"],
+.claude-analysis-content [style*="background:#ffffff"],
+.claude-analysis-content [style*="background-color:#ffffff"],
+.claude-analysis-content [style*="background: #ffffff"],
+.claude-analysis-content [style*="background-color: #ffffff"],
+.claude-analysis-content [style*="background:rgb(255, 255, 255)"],
+.claude-analysis-content [style*="background-color:rgb(255, 255, 255)"],
+.claude-analysis-content [style*="background: rgb(255, 255, 255)"],
+.claude-analysis-content [style*="background-color: rgb(255, 255, 255)"] {
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.claude-analysis-content div[style*="background"]:not([style*="rgba"]):not([style*="transparent"]) *,
+.claude-analysis-content div[style*="background-color"]:not([style*="rgba"]):not([style*="transparent"]) *,
+.claude-analysis-content [style*="background: white"] *,
+.claude-analysis-content [style*="background-color: white"] *,
+.claude-analysis-content [style*="background:#fff"] *,
+.claude-analysis-content [style*="background-color:#fff"] *,
+.claude-analysis-content [style*="background: #fff"] *,
+.claude-analysis-content [style*="background-color: #fff"] *,
+.claude-analysis-content [style*="background:#ffffff"] *,
+.claude-analysis-content [style*="background-color:#ffffff"] *,
+.claude-analysis-content [style*="background: #ffffff"] *,
+.claude-analysis-content [style*="background-color: #ffffff"] *,
+.claude-analysis-content [style*="background:rgb(255, 255, 255)"] *,
+.claude-analysis-content [style*="background-color:rgb(255, 255, 255)"] *,
+.claude-analysis-content [style*="background: rgb(255, 255, 255)"] *,
+.claude-analysis-content [style*="background-color: rgb(255, 255, 255)"] * {
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+
 /* AI分析結果内のすべての要素に基本色を設定（インラインスタイルを上書き） */
 .claude-analysis-content * {
   color: rgba(255, 255, 255, 0.95) !important;
@@ -385,7 +424,14 @@ body {
   color: rgba(255, 255, 255, 0.95) !important;
 }
 
-/* 背景色が白っぽい要素のテキストを黒に変更（必要に応じて） */
+/* 背景色が白っぽい要素のテキストを黒に変更（クラスベース） */
+.claude-analysis-content .white-background,
+.claude-analysis-content .white-background * {
+  color: rgba(0, 0, 0, 0.9) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important; /* 暗い背景に合わせて半透明に */
+}
+
+/* 背景色が白っぽい要素のテキストを黒に変更（インラインスタイル検出） */
 .claude-analysis-content [style*="background"][style*="white"],
 .claude-analysis-content [style*="background"][style*="#fff"],
 .claude-analysis-content [style*="background"][style*="#ffffff"] {

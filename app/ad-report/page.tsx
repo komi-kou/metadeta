@@ -74,6 +74,16 @@ interface CampaignData {
 
 // HTMLサニタイゼーション関数
 function sanitizeHtml(html: string): string {
+  // デバッグ: 元のHTMLをログに出力（最初の500文字のみ）
+  if (typeof window !== 'undefined') {
+    console.log('Original HTML (first 500 chars):', html.substring(0, 500));
+    // style属性を含む要素を検出
+    const styleMatches = html.match(/style\s*=\s*["'][^"']*["']/gi);
+    if (styleMatches) {
+      console.log('Found style attributes:', styleMatches.slice(0, 10));
+    }
+  }
+
   // 危険なスクリプトやイベントハンドラーを削除
   let sanitized = html
     // scriptタグを削除
@@ -88,19 +98,28 @@ function sanitizeHtml(html: string): string {
     .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
 
-  // インラインスタイルのcolorプロパティを削除（白いテキストの問題を解決）
-  // より確実な方法：style属性全体を処理
+  // インラインスタイルを完全に削除（color、background、background-colorなど）
+  // 方法1: style属性全体を削除（最も確実）
+  // ただし、background-colorが白の場合は、その要素にクラスを追加してCSSで処理する
   sanitized = sanitized.replace(/style\s*=\s*["']([^"']*)["']/gi, (match, styleContent) => {
-    // colorプロパティを削除
-    let cleanedStyle = styleContent
-      .replace(/\s*color\s*:\s*[^;]+;?/gi, '') // colorプロパティを削除
-      .replace(/;\s*;/g, ';') // 連続するセミコロンを1つに
-      .replace(/^;+|;+$/g, '') // 先頭と末尾のセミコロンを削除
-      .trim();
-    
-    // 残りのスタイルがあれば返す、なければ空文字列
-    return cleanedStyle ? `style="${cleanedStyle}"` : '';
+    // 背景色が白の場合、クラスを追加
+    if (styleContent.match(/background[^:]*:\s*(white|#fff|#ffffff|rgb\s*\(\s*255\s*,\s*255\s*,\s*255\s*\))/i)) {
+      return 'class="white-background"';
+    }
+    // それ以外のスタイルは削除
+    return '';
   });
+
+  // デバッグ: 処理後のHTMLをログに出力
+  if (typeof window !== 'undefined') {
+    console.log('Sanitized HTML (first 500 chars):', sanitized.substring(0, 500));
+    const remainingStyles = sanitized.match(/style\s*=\s*["'][^"']*["']/gi);
+    if (remainingStyles) {
+      console.warn('⚠️ Remaining style attributes after sanitization:', remainingStyles);
+    } else {
+      console.log('✅ All style attributes removed successfully');
+    }
+  }
 
   return sanitized;
 }
@@ -837,7 +856,6 @@ export default function AdReportPage() {
                   <div
                     className="claude-analysis-inner"
                     style={{ 
-                      color: 'rgba(255, 255, 255, 0.95) !important',
                       lineHeight: '1.6'
                     }}
                     dangerouslySetInnerHTML={{
