@@ -572,6 +572,30 @@ ${placements && placements.byPublisher ? `
       );
     }
 
+    // マークダウンコードブロックを削除
+    // パターン1: ```html ... ```
+    // パターン2: ``` ... ```
+    // パターン3: 前後の不要なテキスト
+    if (analysis) {
+      // まず前後の空白・改行を削除
+      analysis = analysis.trim();
+      
+      // コードブロックマーカーを削除
+      // ```html で始まるコードブロックを削除
+      analysis = analysis.replace(/^```html\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+      // ``` で始まるコードブロックを削除（html以外、複数回実行される可能性があるため）
+      let previousAnalysis = '';
+      while (previousAnalysis !== analysis) {
+        previousAnalysis = analysis;
+        analysis = analysis.replace(/^```[a-z]*\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+      }
+      // 再度前後の空白・改行を削除
+      analysis = analysis.trim();
+      
+      // デバッグ: マークダウン削除後の最初の100文字をログに出力
+      console.log('After markdown removal (first 100 chars):', analysis.substring(0, 100));
+    }
+
     // 分析結果が空の場合のチェック
     if (!analysis || analysis.trim().length === 0) {
       console.error('❌ Claude API Response Error: analysis text is empty', {

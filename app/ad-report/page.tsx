@@ -98,17 +98,41 @@ function sanitizeHtml(html: string): string {
     .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
 
-  // インラインスタイルを完全に削除（color、background、background-colorなど）
-  // 方法1: style属性全体を削除（最も確実）
-  // ただし、background-colorが白の場合は、その要素にクラスを追加してCSSで処理する
+  // インラインスタイルのサニタイゼーション
+  // セキュリティ上問題のあるスタイルのみを削除し、通常のスタイルは保持
   sanitized = sanitized.replace(/style\s*=\s*["']([^"']*)["']/gi, (match, styleContent) => {
-    // 背景色が白の場合、クラスを追加
+    // 危険なスタイルプロパティを検出
+    const dangerousPatterns = [
+      /expression\s*\(/i,           // expression()
+      /javascript:/i,                // javascript:プロトコル
+      /url\s*\(\s*["']?javascript:/i, // url(javascript:...)
+      /@import/i,                    // @import
+      /behavior\s*:/i,               // behavior: (IE専用)
+      /binding\s*:/i,                // binding: (IE専用)
+      /-moz-binding/i,               // -moz-binding
+      /import\s+url/i                 // import url()
+    ];
+    
+    // 危険なパターンが含まれている場合はスタイル全体を削除
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(styleContent)) {
+        console.warn('⚠️ Dangerous style detected and removed:', styleContent.substring(0, 100));
+        // style属性全体を削除（空のstyle属性が残らないように）
+        return '';
+      }
+    }
+    
+    // 背景色が白の場合、クラスを追加してCSSで処理
     if (styleContent.match(/background[^:]*:\s*(white|#fff|#ffffff|rgb\s*\(\s*255\s*,\s*255\s*,\s*255\s*\))/i)) {
       return 'class="white-background"';
     }
-    // それ以外のスタイルは削除
-    return '';
+    
+    // それ以外のスタイルは保持（セキュリティ上問題ないため）
+    return match;
   });
+  
+  // 空のstyle属性を削除（危険なスタイルを削除した後に残る可能性がある）
+  sanitized = sanitized.replace(/\s*style\s*=\s*["']\s*["']/gi, '');
 
   // デバッグ: 処理後のHTMLをログに出力
   if (typeof window !== 'undefined') {
