@@ -99,7 +99,7 @@ function sanitizeHtml(html: string): string {
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '');
 
   // インラインスタイルのサニタイゼーション
-  // セキュリティ上問題のあるスタイルのみを削除し、通常のスタイルは保持
+  // セキュリティ上問題のあるスタイルと、表示に影響するcolorプロパティを削除
   sanitized = sanitized.replace(/style\s*=\s*["']([^"']*)["']/gi, (match, styleContent) => {
     // 危険なスタイルプロパティを検出
     const dangerousPatterns = [
@@ -118,6 +118,24 @@ function sanitizeHtml(html: string): string {
       if (pattern.test(styleContent)) {
         console.warn('⚠️ Dangerous style detected and removed:', styleContent.substring(0, 100));
         // style属性全体を削除（空のstyle属性が残らないように）
+        return '';
+      }
+    }
+    
+    // colorプロパティを含むスタイルを削除（CSSで制御するため）
+    // border-left-colorなどのborder系のcolorは保持（視覚的な区別のため）
+    if (styleContent.match(/\bcolor\s*:\s*[^;]+/i) && !styleContent.match(/border[^:]*color/i)) {
+      // colorプロパティを削除し、残りのスタイルを保持
+      const cleanedStyle = styleContent
+        .replace(/\bcolor\s*:\s*[^;]+;?\s*/gi, '') // colorプロパティを削除
+        .replace(/;\s*;/g, ';') // 連続するセミコロンを1つに
+        .trim()
+        .replace(/^;|;$/g, ''); // 先頭・末尾のセミコロンを削除
+      
+      if (cleanedStyle.length > 0) {
+        return `style="${cleanedStyle}"`;
+      } else {
+        // color以外のスタイルがない場合は、style属性全体を削除
         return '';
       }
     }

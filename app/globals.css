@@ -362,8 +362,16 @@ body {
   color: rgba(255, 255, 255, 0.95) !important;
 }
 
-.claude-analysis-content .insights-box h3 {
+.claude-analysis-content .insights-box h3,
+.claude-analysis-content .warning-title {
   color: #ff6b6b !important;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.claude-analysis-content .success-title {
+  color: #00b894 !important;
   margin-bottom: 1rem;
   font-size: 1.125rem;
   font-weight: 600;

@@ -202,6 +202,12 @@ ${devices.map((d: any) => `
 
 注: 上記の [ ] は実際には < > として出力してください。
 
+**重要: スタイルに関する制約**
+- **インラインスタイル（style属性）は使用しないでください**。特にcolorプロパティを含むインラインスタイルは使用禁止です。
+- テキストの色はCSSクラスで制御されるため、インラインスタイルで色を指定しないでください。
+- 視覚的な区別が必要な場合は、クラス名やHTML構造を使用してください（例: [h3 class="warning-title"]）。
+- border-left-colorなどのborder系の色は、必要に応じて使用できますが、テキストのcolorプロパティは使用しないでください。
+
 ### 📊 1. パフォーマンス概要
 
 #### 🎯 総合評価
@@ -299,7 +305,7 @@ ${devices.map((d: any) => `
 
 #### 🔴 最優先で対応すべき課題
 [div class="insights-box" style="border-left-color: #d63031;"]
-[h3 style="color: #d63031;"]🔴 最優先で対応すべき課題[/h3]
+[h3 class="warning-title"]🔴 最優先で対応すべき課題[/h3]
 [p][strong]課題:[/strong] [具体的な問題]][/p]
 [ul]
 [li][strong]ビジネスへの影響:[/strong] 広告費の XX% (¥XXX) に影響[/li]
@@ -310,7 +316,7 @@ ${devices.map((d: any) => `
 
 #### 🟡 重要な改善ポイント
 [div class="insights-box" style="border-left-color: #f39c12;"]
-[h3 style="color: #f39c12;"]🟡 重要な改善ポイント[/h3]
+[h3 class="warning-title"]🟡 重要な改善ポイント[/h3]
 [p][strong]課題:[/strong] [2番目の問題]][/p]
 [ul]
 [li][strong]ビジネスへの影響:[/strong] [定量的に]][/li]
@@ -321,7 +327,7 @@ ${devices.map((d: any) => `
 
 #### 🟢 長期的な最適化
 [div class="insights-box" style="border-left-color: #00b894;"]
-[h3 style="color: #00b894;"]🟢 長期的な最適化[/h3]
+[h3 class="success-title"]🟢 長期的な最適化[/h3]
 [p][strong]課題:[/strong] [3番目の問題]][/p]
 [ul]
 [li][strong]ビジネスへの影響:[/strong] [定量的に]][/li]
@@ -474,7 +480,7 @@ ${placements && placements.byPublisher ? `
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 16000,
+        max_tokens: 8192,
         messages: [
           {
             role: 'user',
@@ -626,8 +632,8 @@ ${placements && placements.byPublisher ? `
         input_tokens: data.usage.input_tokens,
         output_tokens: data.usage.output_tokens,
         total_tokens: data.usage.input_tokens + data.usage.output_tokens,
-        max_tokens: 16000,
-        usage_percentage: ((data.usage.input_tokens + data.usage.output_tokens) / 16000 * 100).toFixed(1) + '%',
+        max_tokens: 8192,
+        usage_percentage: ((data.usage.input_tokens + data.usage.output_tokens) / 8192 * 100).toFixed(1) + '%',
         stop_reason: data.stop_reason || 'unknown'
       };
       
