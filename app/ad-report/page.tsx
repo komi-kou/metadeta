@@ -142,6 +142,7 @@ export default function AdReportPage() {
   const [datePreset, setDatePreset] = useState('last_7d');
   const [claudeAnalysis, setClaudeAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisWarning, setAnalysisWarning] = useState<string | null>(null);
 
   // 設定を読み込む
   useEffect(() => {
@@ -368,9 +369,27 @@ export default function AdReportPage() {
         if (contentType && contentType.includes('application/json')) {
           const result = await response.json();
           if (result.success) {
+            // 分析結果が存在するか確認
+            if (!result.analysis || result.analysis.trim().length === 0) {
+              console.error('Analysis result is empty:', result);
+              setAnalysisWarning(null);
+              alert('Claude分析は成功しましたが、分析結果が空です。詳細はコンソールを確認してください。');
+              return;
+            }
+            
             setClaudeAnalysis(result.analysis);
+            // トークン制限の警告を設定
+            if (result.truncated || result.warning) {
+              setAnalysisWarning(result.warning || '分析結果が途中で切れている可能性があります。');
+            } else {
+              setAnalysisWarning(null);
+            }
           } else {
-            alert('Claude分析に失敗しました: ' + (result.error || '不明なエラー'));
+            setAnalysisWarning(null);
+            const errorMessage = result.error || '不明なエラー';
+            const errorDetails = result.details ? `\n詳細: ${JSON.stringify(result.details)}` : '';
+            console.error('Claude analysis failed:', result);
+            alert(`Claude分析に失敗しました: ${errorMessage}${errorDetails}`);
           }
         } else {
           const text = await response.text();
@@ -852,6 +871,14 @@ export default function AdReportPage() {
             {claudeAnalysis && (
               <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-md rounded-xl p-6 border border-purple-500/20">
                 <h2 className="text-2xl font-bold text-white mb-6">🤖 AI分析レポート（Claude Sonnet 4.5）</h2>
+                {analysisWarning && (
+                  <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 mb-6">
+                    <p className="text-yellow-300 flex items-center">
+                      <span className="mr-2">⚠️</span>
+                      {analysisWarning}
+                    </p>
+                  </div>
+                )}
                 <div className="claude-analysis-content">
                   <div
                     className="claude-analysis-inner"

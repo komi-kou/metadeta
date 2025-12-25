@@ -1,5 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * 安全な数値フォーマット関数
+ * undefined/null/NaNの場合でもエラーを発生させずにデフォルト値を返す
+ */
+function safeFormatNumber(
+  value: number | undefined | null,
+  format: 'locale' | 'fixed',
+  decimals: number = 2
+): string {
+  if (value === undefined || value === null || isNaN(value)) {
+    return format === 'locale' ? '0' : '0.00';
+  }
+  
+  if (format === 'locale') {
+    return value.toLocaleString();
+  } else {
+    return value.toFixed(decimals);
+  }
+}
+
+/**
+ * 安全な文字列取得関数
+ */
+function safeString(value: string | undefined | null, defaultValue: string = ''): string {
+  return value ?? defaultValue;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { apiKey, insights, comparison, campaigns, adsets, ads, dailyTrends, demographics, geography, placements, devices } = await request.json();
@@ -21,9 +48,9 @@ export async function POST(request: NextRequest) {
     // 分析プロンプトを構築
     const analysisPrompt = `あなたは経験豊富なデジタルマーケティングアナリストです。Meta広告の包括的なパフォーマンス分析レポートを作成してください。
 
-**分析期間:** ${insights.date_start} 〜 ${insights.date_stop}
-${insights.primaryEventType ? `**主要コンバージョンイベント:** ${insights.primaryEventType}` : ''}
-${comparison && comparison.previous ? `**比較期間:** ${comparison.previous.date_start} 〜 ${comparison.previous.date_stop}` : ''}
+**分析期間:** ${safeString(insights?.date_start, '期間不明')} 〜 ${safeString(insights?.date_stop, '期間不明')}
+${insights?.primaryEventType ? `**主要コンバージョンイベント:** ${insights.primaryEventType}` : ''}
+${comparison && comparison.previous ? `**比較期間:** ${safeString(comparison.previous.date_start, '期間不明')} 〜 ${safeString(comparison.previous.date_stop, '期間不明')}` : ''}
 
 以下のステップに従って分析を実行してください：
 
@@ -32,76 +59,76 @@ ${comparison && comparison.previous ? `**比較期間:** ${comparison.previous.d
 ## ステップ 1: パフォーマンスデータの抽出
 
 ### アカウント全体メトリクス（現在期間）
-- 広告費: ¥${insights.spend.toLocaleString()}
-- インプレッション: ${insights.impressions.toLocaleString()}
-- クリック数: ${insights.clicks.toLocaleString()}
-- CTR: ${insights.ctr.toFixed(2)}%
-- CPC: ¥${insights.cpc.toFixed(0)}
-- CPM: ¥${insights.cpm.toFixed(0)}
-- リーチ: ${insights.reach.toLocaleString()}
-- フリークエンシー: ${insights.frequency.toFixed(2)}
-- コンバージョン数: ${insights.conversions.toFixed(0)}
-- CPA: ¥${insights.cpa.toLocaleString()}
-- CVR: ${insights.cvr.toFixed(2)}%
+- 広告費: ¥${safeFormatNumber(insights?.spend, 'locale')}
+- インプレッション: ${safeFormatNumber(insights?.impressions, 'locale')}
+- クリック数: ${safeFormatNumber(insights?.clicks, 'locale')}
+- CTR: ${safeFormatNumber(insights?.ctr, 'fixed', 2)}%
+- CPC: ¥${safeFormatNumber(insights?.cpc, 'fixed', 0)}
+- CPM: ¥${safeFormatNumber(insights?.cpm, 'fixed', 0)}
+- リーチ: ${safeFormatNumber(insights?.reach, 'locale')}
+- フリークエンシー: ${safeFormatNumber(insights?.frequency, 'fixed', 2)}
+- コンバージョン数: ${safeFormatNumber(insights?.conversions, 'fixed', 0)}
+- CPA: ¥${safeFormatNumber(insights?.cpa, 'locale')}
+- CVR: ${safeFormatNumber(insights?.cvr, 'fixed', 2)}%
 
-${comparison && comparison.previous ? `
+${comparison && comparison.previous && comparison.comparison ? `
 ### 前期比較データ
-前期間: ${comparison.previous.date_start} 〜 ${comparison.previous.date_stop}
+前期間: ${safeString(comparison.previous.date_start)} 〜 ${safeString(comparison.previous.date_stop)}
 
-- 広告費: ¥${comparison.previous.spend.toLocaleString()} → ¥${insights.spend.toLocaleString()} (${comparison.comparison.spend.percentage > 0 ? '+' : ''}${comparison.comparison.spend.percentage.toFixed(1)}%)
-- コンバージョン: ${comparison.previous.conversions.toFixed(0)} → ${insights.conversions.toFixed(0)} (${comparison.comparison.conversions.percentage > 0 ? '+' : ''}${comparison.comparison.conversions.percentage.toFixed(1)}%)
-- CPA: ¥${comparison.previous.cpa.toLocaleString()} → ¥${insights.cpa.toLocaleString()} (${comparison.comparison.cpa.percentage > 0 ? '+' : ''}${comparison.comparison.cpa.percentage.toFixed(1)}%)
-- CTR: ${comparison.previous.ctr.toFixed(2)}% → ${insights.ctr.toFixed(2)}% (${comparison.comparison.ctr.percentage > 0 ? '+' : ''}${comparison.comparison.ctr.percentage.toFixed(1)}%)
-- CVR: ${comparison.previous.cvr.toFixed(2)}% → ${insights.cvr.toFixed(2)}% (${comparison.comparison.cvr.percentage > 0 ? '+' : ''}${comparison.comparison.cvr.percentage.toFixed(1)}%)
+- 広告費: ¥${safeFormatNumber(comparison.previous.spend, 'locale')} → ¥${safeFormatNumber(insights?.spend, 'locale')} (${comparison.comparison.spend && comparison.comparison.spend.percentage > 0 ? '+' : ''}${safeFormatNumber(comparison.comparison.spend?.percentage, 'fixed', 1)}%)
+- コンバージョン: ${safeFormatNumber(comparison.previous.conversions, 'fixed', 0)} → ${safeFormatNumber(insights?.conversions, 'fixed', 0)} (${comparison.comparison.conversions && comparison.comparison.conversions.percentage > 0 ? '+' : ''}${safeFormatNumber(comparison.comparison.conversions?.percentage, 'fixed', 1)}%)
+- CPA: ¥${safeFormatNumber(comparison.previous.cpa, 'locale')} → ¥${safeFormatNumber(insights?.cpa, 'locale')} (${comparison.comparison.cpa && comparison.comparison.cpa.percentage > 0 ? '+' : ''}${safeFormatNumber(comparison.comparison.cpa?.percentage, 'fixed', 1)}%)
+- CTR: ${safeFormatNumber(comparison.previous.ctr, 'fixed', 2)}% → ${safeFormatNumber(insights?.ctr, 'fixed', 2)}% (${comparison.comparison.ctr && comparison.comparison.ctr.percentage > 0 ? '+' : ''}${safeFormatNumber(comparison.comparison.ctr?.percentage, 'fixed', 1)}%)
+- CVR: ${safeFormatNumber(comparison.previous.cvr, 'fixed', 2)}% → ${safeFormatNumber(insights?.cvr, 'fixed', 2)}% (${comparison.comparison.cvr && comparison.comparison.cvr.percentage > 0 ? '+' : ''}${safeFormatNumber(comparison.comparison.cvr?.percentage, 'fixed', 1)}%)
 ` : ''}
 
 ${campaigns && campaigns.length > 0 ? `
 ### キャンペーン別パフォーマンス（トップ10）
 ${campaigns.slice(0, 10).map((c: any, i: number) => `
-${i + 1}. ${c.name}
-   - ステータス: ${c.status} | 広告費: ¥${c.spend.toLocaleString()} | CV: ${c.conversions.toFixed(0)} | CPA: ¥${c.cpa.toLocaleString()} | CTR: ${c.ctr.toFixed(2)}%
+${i + 1}. ${safeString(c.name, '無名キャンペーン')}
+   - ステータス: ${safeString(c.status, '不明')} | 広告費: ¥${safeFormatNumber(c.spend, 'locale')} | CV: ${safeFormatNumber(c.conversions, 'fixed', 0)} | CPA: ¥${safeFormatNumber(c.cpa, 'locale')} | CTR: ${safeFormatNumber(c.ctr, 'fixed', 2)}%
 `).join('')}
 ` : ''}
 
 ${dailyTrends && dailyTrends.length > 0 ? `
 ### 日別トレンド（直近データ）
 ${dailyTrends.slice(-7).map((d: any) => `
-${d.date}: 広告費 ¥${d.spend.toLocaleString()} | CV ${d.conversions.toFixed(0)} | CPA ¥${d.cpa.toLocaleString()} | CVR ${d.cvr.toFixed(2)}%
+${safeString(d.date, '日付不明')}: 広告費 ¥${safeFormatNumber(d.spend, 'locale')} | CV ${safeFormatNumber(d.conversions, 'fixed', 0)} | CPA ¥${safeFormatNumber(d.cpa, 'locale')} | CVR ${safeFormatNumber(d.cvr, 'fixed', 2)}%
 `).join('')}
 ` : ''}
 
 ${demographics && demographics.byAge && demographics.byAge.length > 0 ? `
 ### 年齢別パフォーマンス（トップ5）
 ${demographics.byAge.slice(0, 5).map((d: any, i: number) => `
-${i + 1}. 年齢: ${d.age} | 広告費: ¥${d.spend.toLocaleString()} | CV: ${d.conversions.toFixed(0)} | CPA: ¥${d.cpa.toLocaleString()} | CTR: ${d.ctr.toFixed(2)}%
+${i + 1}. 年齢: ${safeString(d.age, '不明')} | 広告費: ¥${safeFormatNumber(d.spend, 'locale')} | CV: ${safeFormatNumber(d.conversions, 'fixed', 0)} | CPA: ¥${safeFormatNumber(d.cpa, 'locale')} | CTR: ${safeFormatNumber(d.ctr, 'fixed', 2)}%
 `).join('')}
 ` : ''}
 
 ${demographics && demographics.byGender && demographics.byGender.length > 0 ? `
 ### 性別パフォーマンス
 ${demographics.byGender.map((d: any) => `
-性別: ${d.gender} | 広告費: ¥${d.spend.toLocaleString()} | CV: ${d.conversions.toFixed(0)} | CPA: ¥${d.cpa.toLocaleString()} | CTR: ${d.ctr.toFixed(2)}%
+性別: ${safeString(d.gender, '不明')} | 広告費: ¥${safeFormatNumber(d.spend, 'locale')} | CV: ${safeFormatNumber(d.conversions, 'fixed', 0)} | CPA: ¥${safeFormatNumber(d.cpa, 'locale')} | CTR: ${safeFormatNumber(d.ctr, 'fixed', 2)}%
 `).join('')}
 ` : ''}
 
 ${geography && geography.byCountry && geography.byCountry.length > 0 ? `
 ### 国別パフォーマンス（トップ5）
 ${geography.byCountry.slice(0, 5).map((g: any, i: number) => `
-${i + 1}. 国: ${g.country} | 広告費: ¥${g.spend.toLocaleString()} | CV: ${g.conversions.toFixed(0)} | CPA: ¥${g.cpa.toLocaleString()}
+${i + 1}. 国: ${safeString(g.country, '不明')} | 広告費: ¥${safeFormatNumber(g.spend, 'locale')} | CV: ${safeFormatNumber(g.conversions, 'fixed', 0)} | CPA: ¥${safeFormatNumber(g.cpa, 'locale')}
 `).join('')}
 ` : ''}
 
 ${placements && placements.byPublisher && placements.byPublisher.length > 0 ? `
 ### プレースメント別パフォーマンス
 ${placements.byPublisher.map((p: any) => `
-配信面: ${p.publisher_platform} | 広告費: ¥${p.spend.toLocaleString()} | CV: ${p.conversions.toFixed(0)} | CPA: ¥${p.cpa.toLocaleString()} | Freq: ${p.frequency.toFixed(2)}
+配信面: ${safeString(p.publisher_platform, '不明')} | 広告費: ¥${safeFormatNumber(p.spend, 'locale')} | CV: ${safeFormatNumber(p.conversions, 'fixed', 0)} | CPA: ¥${safeFormatNumber(p.cpa, 'locale')} | Freq: ${safeFormatNumber(p.frequency, 'fixed', 2)}
 `).join('')}
 ` : ''}
 
 ${devices && devices.length > 0 ? `
 ### デバイス別パフォーマンス
 ${devices.map((d: any) => `
-デバイス: ${d.device_platform} | 広告費: ¥${d.spend.toLocaleString()} | CV: ${d.conversions.toFixed(0)} | CPA: ¥${d.cpa.toLocaleString()} | CTR: ${d.ctr.toFixed(2)}%
+デバイス: ${safeString(d.device_platform, '不明')} | 広告費: ¥${safeFormatNumber(d.spend, 'locale')} | CV: ${safeFormatNumber(d.conversions, 'fixed', 0)} | CPA: ¥${safeFormatNumber(d.cpa, 'locale')} | CTR: ${safeFormatNumber(d.ctr, 'fixed', 2)}%
 `).join('')}
 ` : ''}
 
@@ -467,28 +494,132 @@ ${placements && placements.byPublisher ? `
 
     const data = await response.json();
 
+    // レスポンス構造をログに出力（デバッグ用）
+    console.log('Claude API Response Structure:', {
+      hasContent: !!data.content,
+      contentType: Array.isArray(data.content) ? 'array' : typeof data.content,
+      contentLength: Array.isArray(data.content) ? data.content.length : 'N/A',
+      firstContentType: data.content?.[0] ? typeof data.content[0] : 'N/A',
+      hasText: !!data.content?.[0]?.text,
+      textLength: data.content?.[0]?.text?.length || 0,
+      stopReason: data.stop_reason,
+      model: data.model
+    });
+
     // Claude APIのレスポンスから分析結果を抽出
-    const analysis = data.content?.[0]?.text || '';
+    let analysis = '';
+    
+    // レスポンス構造の検証
+    if (!data.content) {
+      console.error('❌ Claude API Response Error: content field is missing');
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Claude APIからのレスポンスにcontentフィールドが含まれていません',
+          details: {
+            responseStructure: Object.keys(data),
+            rawResponse: JSON.stringify(data).substring(0, 500)
+          }
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!Array.isArray(data.content) || data.content.length === 0) {
+      console.error('❌ Claude API Response Error: content is not an array or is empty', {
+        contentType: typeof data.content,
+        contentValue: data.content
+      });
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Claude APIからのレスポンスのcontentが配列ではないか、空です',
+          details: {
+            contentType: typeof data.content,
+            contentLength: Array.isArray(data.content) ? data.content.length : 'N/A'
+          }
+        },
+        { status: 500 }
+      );
+    }
+
+    // textフィールドの取得を試行
+    const firstContent = data.content[0];
+    if (firstContent.type === 'text' && firstContent.text) {
+      analysis = firstContent.text;
+    } else if (typeof firstContent === 'string') {
+      // 古いAPI形式の場合
+      analysis = firstContent;
+    } else if (firstContent.text) {
+      // textフィールドが直接存在する場合
+      analysis = firstContent.text;
+    } else {
+      console.error('❌ Claude API Response Error: text field not found in content', {
+        contentStructure: Object.keys(firstContent),
+        contentType: firstContent.type,
+        rawContent: JSON.stringify(firstContent).substring(0, 500)
+      });
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Claude APIからのレスポンスにtextフィールドが見つかりません',
+          details: {
+            contentStructure: Object.keys(firstContent),
+            contentType: firstContent.type
+          }
+        },
+        { status: 500 }
+      );
+    }
+
+    // 分析結果が空の場合のチェック
+    if (!analysis || analysis.trim().length === 0) {
+      console.error('❌ Claude API Response Error: analysis text is empty', {
+        analysisLength: analysis.length,
+        hasUsage: !!data.usage,
+        stopReason: data.stop_reason
+      });
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Claude APIからの分析結果が空です',
+          details: {
+            stopReason: data.stop_reason,
+            usage: data.usage,
+            model: data.model
+          }
+        },
+        { status: 500 }
+      );
+    }
     
     // トークン使用量をログに出力（デバッグ用）
+    let isTruncated = false;
+    let warningMessage = '';
+    
     if (data.usage) {
-      console.log('Claude API Usage:', {
+      const usageInfo = {
         input_tokens: data.usage.input_tokens,
         output_tokens: data.usage.output_tokens,
         total_tokens: data.usage.input_tokens + data.usage.output_tokens,
         max_tokens: 16000,
         usage_percentage: ((data.usage.input_tokens + data.usage.output_tokens) / 16000 * 100).toFixed(1) + '%',
         stop_reason: data.stop_reason || 'unknown'
-      });
+      };
       
-      // トークン制限に近い場合の警告
-      if (data.usage.output_tokens >= 15000) {
-        console.warn('⚠️ トークン使用量が上限に近づいています。レスポンスが途中で切れている可能性があります。');
-      }
+      console.log('Claude API Usage:', usageInfo);
       
       // stop_reasonがmax_tokensの場合、途中で切れている
       if (data.stop_reason === 'max_tokens') {
-        console.warn('⚠️ トークン制限に達しました。レスポンスが途中で切れています。max_tokensを増やすことを検討してください。');
+        isTruncated = true;
+        warningMessage = 'トークン制限に達したため、レスポンスが途中で切れている可能性があります。分析結果が不完全な場合があります。';
+        console.warn('⚠️ トークン制限に達しました。レスポンスが途中で切れています。');
+      }
+      
+      // トークン制限に近い場合の警告
+      if (data.usage.output_tokens >= 15000 && !isTruncated) {
+        warningMessage = 'トークン使用量が上限に近づいています。レスポンスが途中で切れている可能性があります。';
+        console.warn('⚠️ トークン使用量が上限に近づいています。レスポンスが途中で切れている可能性があります。');
       }
     }
     
@@ -532,13 +663,15 @@ ${placements && placements.byPublisher ? `
       model: data.model,
       usage: data.usage,
       stop_reason: data.stop_reason,
+      truncated: isTruncated,
+      warning: warningMessage || undefined,
       debug: {
         analysis_length: analysisLength,
         has_action_steps: hasActionSteps,
         total_action_count: actionCount,
         immediate_action_count: immediateActionCount,
         token_warning: data.usage && data.usage.output_tokens >= 15000,
-        truncated: data.stop_reason === 'max_tokens'
+        truncated: isTruncated
       }
     });
   } catch (error) {

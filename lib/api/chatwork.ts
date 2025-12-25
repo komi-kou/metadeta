@@ -40,7 +40,30 @@ export async function sendMessageToChatwork(
   });
 
   if (!response.ok) {
-    throw new Error(`Chatwork API Error: ${response.status} ${response.statusText}`);
+    // エラーレスポンスの詳細を取得
+    const errorText = await response.text();
+    let errorData: any;
+    
+    try {
+      errorData = JSON.parse(errorText);
+    } catch {
+      errorData = { message: errorText || 'Unknown error' };
+    }
+    
+    // 詳細なエラー情報をログに出力
+    console.error('Chatwork API Error Details:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorData,
+      endpoint: endpoint
+    });
+    
+    // ユーザーフレンドリーなエラーメッセージを生成
+    const errorMessage = errorData.error?.message || 
+                        errorData.message || 
+                        `Chatwork API Error: ${response.status} ${response.statusText}`;
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();
